@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import StarAvatar from '../components/StarAvatar';
-import { RARITIES } from '../data/rarities';
+import { RARITIES, normalizeRarity } from '../data/rarities';
 import '../style/index.css';
 import '../style/Profile.css';
 import starryVideo from '../assets/stars.mp4';
@@ -24,13 +24,14 @@ const PROFILE_TABS = [
   { id: 'settings', label: 'Настройки' },
 ];
 
-// Купленные звёзды (демо-набор — как будто куплены раньше)
+// Купленные звёзды (демо-набор — как будто куплены раньше).
+// По новой схеме все знаменитые звёзды — Путеводные
 const purchasedStars = [
   {
     id: 1,
     name: 'Сириус',
     constellation: 'Большой Пёс',
-    rarity: 'named',
+    rarity: 'guiding',
     face: 'joy',
     decor: 'sparkles',
     giftedTo: 'Анна',
@@ -41,7 +42,7 @@ const purchasedStars = [
     id: 2,
     name: 'Вега',
     constellation: 'Лира',
-    rarity: 'named',
+    rarity: 'guiding',
     face: 'happy',
     decor: 'ring',
     giftedTo: 'Мария',
@@ -52,7 +53,7 @@ const purchasedStars = [
     id: 3,
     name: 'Полярная звезда',
     constellation: 'Малая Медведица',
-    rarity: 'crown',
+    rarity: 'guiding',
     face: 'wink',
     decor: 'orbit',
     giftedTo: 'Екатерина',
@@ -101,7 +102,8 @@ const ProfilePage = () => {
         id: `${order.number}-${idx}`,
         name: it.name,
         constellation: it.constellation,
-        rarity: it.rarity,
+        /* в старых заказах могли остаться прежние id редкостей */
+        rarity: normalizeRarity(it.rarity),
         face: it.face,
         decor: it.decor,
         giftedTo: it.giftedTo,

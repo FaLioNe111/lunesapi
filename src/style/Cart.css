@@ -100,9 +100,9 @@
 }
 
 /* лёгкое цветовое эхо редкости на рамке позиции */
+.cart-item.distant { border-color: rgba(120, 150, 220, 0.3); }
 .cart-item.constellation { border-color: rgba(150, 180, 255, 0.3); }
-.cart-item.named { border-color: rgba(243, 212, 136, 0.3); }
-.cart-item.luminary { border-color: rgba(255, 226, 150, 0.45); }
+.cart-item.guiding { border-color: rgba(243, 212, 136, 0.35); }
 .cart-item.crown { border-color: rgba(216, 180, 255, 0.5); }
 
 .cart-item-visual {

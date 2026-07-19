@@ -305,19 +305,19 @@
   flex-shrink: 0;
 }
 
+.profile-rarity.distant {
+  background: rgba(120, 150, 220, 0.1);
+  color: #93a9e8;
+  border: 1px solid rgba(120, 150, 220, 0.35);
+}
+
 .profile-rarity.constellation {
   background: rgba(140, 170, 255, 0.12);
   color: #aec4ff;
   border: 1px solid rgba(140, 170, 255, 0.4);
 }
 
-.profile-rarity.named {
-  background: rgba(243, 212, 136, 0.12);
-  color: #f3d488;
-  border: 1px solid rgba(243, 212, 136, 0.4);
-}
-
-.profile-rarity.luminary {
+.profile-rarity.guiding {
   background: linear-gradient(135deg, rgba(255, 226, 150, 0.22), rgba(240, 163, 94, 0.22));
   color: #ffe9a8;
   border: 1px solid rgba(255, 226, 150, 0.55);

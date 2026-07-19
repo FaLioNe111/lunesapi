@@ -5,6 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { normalizeRarity } from '../data/rarities';
 
 /**
  * ===== Корзина (только фронт) =====
@@ -20,12 +21,14 @@ const CART_STORAGE_KEY = 'starCart';
 
 const CartContext = createContext(null);
 
-/* Чтение корзины из localStorage с защитой от битых данных */
+/* Чтение корзины из localStorage с защитой от битых данных.
+   Редкости нормализуются: в хранилище могут лежать старые id */
 const readStoredCart = () => {
   try {
     const raw = localStorage.getItem(CART_STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((it) => ({ ...it, rarity: normalizeRarity(it.rarity) }));
   } catch {
     return [];
   }

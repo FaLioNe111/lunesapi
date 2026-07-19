@@ -189,10 +189,20 @@
 
 /* цвет заголовка — в тон бейджу категории */
 .rarity-section-title.nameless { color: #aab6e0; }
+.rarity-section-title.distant { color: #93a9e8; }
 .rarity-section-title.constellation { color: #aec4ff; }
-.rarity-section-title.named { color: #f3d488; }
-.rarity-section-title.luminary { color: #ffce7a; }
+.rarity-section-title.guiding { color: #f3d488; }
 .rarity-section-title.crown { color: #d8b4ff; }
+
+/* количество звёзд в категории */
+.rarity-section-count {
+  color: #7488c4;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+  border: 1px solid rgba(150, 170, 255, 0.25);
+  border-radius: 999px;
+  padding: 0.1rem 0.65rem;
+}
 
 .rarity-section-tagline {
   color: #7488c4;
@@ -208,10 +218,21 @@
   gap: 1.4rem;
 }
 
-/* Светила — две крупные карточки, не растянутые на всю ширину */
-.catalog-grid.luminary-grid {
+/* Небесный Венец — две крупные карточки, не растянутые на всю ширину */
+.catalog-grid.crown-grid {
   grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   max-width: 720px;
+}
+
+/* Загрузка каталога из «API» */
+.catalog-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 3rem 0;
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
 }
 
 /* ===== Карточка звезды ===== */
@@ -267,8 +288,16 @@
   opacity: 0.8;
 }
 
-/* Именная — тёплая карточка с двойной золотой рамкой */
-.sky-card.named {
+/* Далёкая — глубина неба, холодное туманное свечение в углу */
+.sky-card.distant {
+  border-color: rgba(120, 150, 220, 0.22);
+  background:
+    radial-gradient(circle at 80% 0%, rgba(96, 130, 220, 0.16), transparent 46%),
+    rgba(12, 20, 48, 0.85);
+}
+
+/* Путеводная — тёплая карточка с двойной золотой рамкой */
+.sky-card.guiding {
   border-color: rgba(243, 212, 136, 0.45);
   background: linear-gradient(180deg, rgba(46, 38, 20, 0.6), rgba(16, 27, 60, 0.85) 55%);
   box-shadow:
@@ -276,7 +305,7 @@
     0 0 22px rgba(243, 212, 136, 0.09);
 }
 
-.sky-card.named::before {
+.sky-card.guiding::before {
   content: '';
   position: absolute;
   top: 0.55rem;
@@ -286,12 +315,6 @@
   border: 1px solid rgba(243, 212, 136, 0.16);
   border-radius: 16px;
   pointer-events: none;
-}
-
-/* Светило — общая «дышащая» рамка; фоны Солнца и Луны заданы ниже */
-.sky-card.luminary {
-  border-color: rgba(255, 226, 150, 0.6);
-  animation: special-breathe 3.5s ease-in-out infinite;
 }
 
 /* Небесный Венец — пурпурная карточка с золотой лентой сверху */
@@ -313,12 +336,13 @@
   pointer-events: none;
 }
 
-/* ===== Кастомная карточка Солнца ===== */
+/* ===== Кастомная карточка Солнца (Небесный Венец) ===== */
 .sky-card.sun {
   border-color: rgba(255, 190, 90, 0.75);
   background:
     radial-gradient(circle at 50% 24%, rgba(255, 176, 66, 0.38), transparent 55%),
     linear-gradient(180deg, rgba(74, 44, 14, 0.88), rgba(26, 24, 48, 0.92) 70%);
+  animation: special-breathe 3.5s ease-in-out infinite;
 }
 
 /* мягкие лучи из-за звезды, затухающие к краям карточки */
@@ -371,7 +395,6 @@
   50% { box-shadow: 0 0 30px rgba(190, 205, 240, 0.28); }
 }
 
-.sky-card.luminary::after,
 .sky-card.crown::after {
   content: '';
   position: absolute;
@@ -420,19 +443,19 @@
   border: 1px solid rgba(168, 180, 224, 0.3);
 }
 
+.distant-badge {
+  background: rgba(120, 150, 220, 0.1);
+  color: #93a9e8;
+  border: 1px solid rgba(120, 150, 220, 0.35);
+}
+
 .constellation-badge {
   background: rgba(140, 170, 255, 0.12);
   color: #aec4ff;
   border: 1px solid rgba(140, 170, 255, 0.4);
 }
 
-.named-badge {
-  background: rgba(243, 212, 136, 0.12);
-  color: #f3d488;
-  border: 1px solid rgba(243, 212, 136, 0.4);
-}
-
-.luminary-badge {
+.guiding-badge {
   background: linear-gradient(135deg, rgba(255, 226, 150, 0.22), rgba(240, 163, 94, 0.22));
   color: #ffe9a8;
   border: 1px solid rgba(255, 226, 150, 0.55);
@@ -468,16 +491,21 @@
 }
 
 .sky-card.constellation .star-visual svg,
-.sky-card.named .star-visual svg {
+.sky-card.guiding .star-visual svg {
   filter: drop-shadow(0 0 10px rgba(246, 215, 138, 0.4));
-}
-
-.sky-card.luminary .star-visual svg {
-  filter: drop-shadow(0 0 14px rgba(255, 224, 150, 0.55));
 }
 
 .sky-card.crown .star-visual svg {
   filter: drop-shadow(0 0 16px rgba(216, 180, 255, 0.6));
+}
+
+/* у светил Венца свечение в своём цвете */
+.sky-card.sun .star-visual svg {
+  filter: drop-shadow(0 0 16px rgba(255, 190, 90, 0.6));
+}
+
+.sky-card.moon .star-visual svg {
+  filter: drop-shadow(0 0 14px rgba(190, 205, 240, 0.55));
 }
 
 .star-name {

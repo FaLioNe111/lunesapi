@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const Header = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const { count } = useCart();
 
   useEffect(() => {
     try {
@@ -33,6 +35,14 @@ const Header = () => {
         <nav className="header-nav">
           <div className="header-item" onClick={() => navigate('/stars')}>
             Звезды
+          </div>
+          <div className="header-item" onClick={() => navigate('/wheel')}>
+            Фортуна
+          </div>
+          {/* Корзина со счётчиком выбранных звёзд */}
+          <div className="header-item header-cart" onClick={() => navigate('/cart')}>
+            Корзина
+            {count > 0 && <span className="header-cart-count">{count}</span>}
           </div>
           {user ? (
             <div className="header-item header-user" onClick={() => navigate('/profile')}>

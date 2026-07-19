@@ -84,6 +84,29 @@ html {
   color: #f3d488;
 }
 
+/* Корзина в шапке со счётчиком */
+.header-cart {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.header-cart-count {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f3d488, #e0a95e);
+  color: #241a08;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
 /* ===== Hero секция ===== */
 .hero-section {
   position: relative;

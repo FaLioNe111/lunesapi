@@ -1,0 +1,563 @@
+/* ===== Страница корзины =====
+   Наследует небо и палитру каталога (Stars.css) — единый стиль */
+
+.cart-page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 7rem 1.5rem 4rem;
+  flex: 1;
+}
+
+.cart-title {
+  text-align: center;
+  margin-bottom: 1.8rem;
+}
+
+/* ===== Прогресс шагов ===== */
+.cart-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 2.6rem;
+  flex-wrap: wrap;
+}
+
+.cart-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #7488c4;
+  font-family: 'Neucha', cursive;
+}
+
+.cart-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(168, 180, 224, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.cart-step.active {
+  color: #f3d488;
+}
+
+.cart-step.active .cart-step-num {
+  border-color: #e0b264;
+  background: rgba(243, 212, 136, 0.14);
+}
+
+.cart-step.done {
+  color: #a8b4e0;
+}
+
+.cart-step.done .cart-step-num {
+  border-color: rgba(243, 212, 136, 0.5);
+  background: rgba(243, 212, 136, 0.08);
+}
+
+.cart-step-line {
+  width: 34px;
+  height: 1px;
+  background: rgba(168, 180, 224, 0.3);
+}
+
+.cart-step-line.done {
+  background: rgba(243, 212, 136, 0.5);
+}
+
+/* ===== Раскладка: список + сводка ===== */
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.6rem;
+  align-items: start;
+}
+
+.cart-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ===== Позиция корзины ===== */
+.cart-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1.1rem;
+  background: rgba(16, 27, 60, 0.82);
+  border: 1px solid rgba(150, 170, 255, 0.14);
+  border-radius: 18px;
+  padding: 1.1rem 1.2rem;
+  align-items: center;
+}
+
+/* лёгкое цветовое эхо редкости на рамке позиции */
+.cart-item.constellation { border-color: rgba(150, 180, 255, 0.3); }
+.cart-item.named { border-color: rgba(243, 212, 136, 0.3); }
+.cart-item.luminary { border-color: rgba(255, 226, 150, 0.45); }
+.cart-item.crown { border-color: rgba(216, 180, 255, 0.5); }
+
+.cart-item-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-item-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.cart-item-name {
+  font-family: 'Neucha', cursive;
+  color: #fdf3d7;
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+/* бейдж в корзине статичный, без absolute из каталога */
+.cart-item-badge {
+  position: static;
+}
+
+.cart-item-constellation {
+  color: #8fa0d6;
+  font-size: 0.85rem;
+}
+
+.cart-item-desc {
+  color: #aab6e0;
+  font-size: 0.86rem;
+  font-style: italic;
+  margin: 0.35rem 0 0.6rem;
+}
+
+.cart-item-recipient {
+  width: 100%;
+  max-width: 340px;
+  background: rgba(10, 18, 44, 0.7);
+  border: 1px solid rgba(168, 180, 224, 0.25);
+  border-radius: 10px;
+  color: #e6ebff;
+  padding: 0.5rem 0.8rem;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.25s ease;
+}
+
+.cart-item-recipient:focus {
+  border-color: rgba(243, 212, 136, 0.55);
+}
+
+.cart-item-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+
+.cart-item-price {
+  color: #f3d488;
+  font-family: 'Neucha', cursive;
+  font-size: 1.2rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cart-item-remove {
+  background: transparent;
+  border: none;
+  color: #7488c4;
+  font-family: 'Neucha', cursive;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+.cart-item-remove:hover {
+  color: #f08a8a;
+}
+
+/* ===== Промокод ===== */
+.cart-promo {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.cart-promo-input {
+  flex: 1;
+  background: rgba(16, 27, 60, 0.82);
+  border: 1px solid rgba(168, 180, 224, 0.25);
+  border-radius: 12px;
+  color: #e6ebff;
+  padding: 0.65rem 1rem;
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  outline: none;
+}
+
+.cart-promo-input:focus {
+  border-color: rgba(243, 212, 136, 0.55);
+}
+
+.cart-promo-ok {
+  color: #4ade80;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+  margin: 0.5rem 0 0;
+}
+
+.cart-error {
+  color: #f08a8a;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+  margin: 0.5rem 0 0;
+}
+
+/* ===== Сводка заказа ===== */
+.cart-side-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  position: sticky;
+  top: 90px;
+}
+
+.cart-summary {
+  background: rgba(16, 27, 60, 0.82);
+  border: 1px solid rgba(243, 212, 136, 0.25);
+  border-radius: 18px;
+  padding: 1.4rem 1.5rem;
+}
+
+.cart-summary-title {
+  font-family: 'Neucha', cursive;
+  color: #fdf3d7;
+  font-size: 1.3rem;
+  margin: 0 0 1rem;
+}
+
+.cart-summary-row {
+  display: flex;
+  justify-content: space-between;
+  color: #aab6e0;
+  font-family: 'Neucha', cursive;
+  font-size: 0.98rem;
+  padding: 0.35rem 0;
+}
+
+.cart-summary-row.discount {
+  color: #4ade80;
+}
+
+.cart-summary-total {
+  display: flex;
+  justify-content: space-between;
+  color: #f3d488;
+  font-family: 'Neucha', cursive;
+  font-size: 1.25rem;
+  font-weight: 700;
+  border-top: 1px solid rgba(168, 180, 224, 0.2);
+  margin-top: 0.7rem;
+  padding-top: 0.8rem;
+}
+
+/* ===== Кнопки ===== */
+.cart-primary-button {
+  background: linear-gradient(135deg, #f3d488, #e0a95e);
+  color: #241a08;
+  border: none;
+  padding: 0.75rem 1.6rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-family: 'Neucha', cursive;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(243, 212, 136, 0.22);
+}
+
+.cart-primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(243, 212, 136, 0.4);
+}
+
+.cart-primary-button.wide {
+  width: 100%;
+}
+
+.cart-secondary-button {
+  background: rgba(243, 212, 136, 0.12);
+  color: #f3d488;
+  border: 1px solid rgba(243, 212, 136, 0.45);
+  padding: 0.65rem 1.3rem;
+  border-radius: 12px;
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.cart-secondary-button:hover {
+  background: rgba(243, 212, 136, 0.2);
+}
+
+.cart-ghost-button {
+  background: transparent;
+  color: #a8b4e0;
+  border: 1px solid rgba(168, 180, 224, 0.3);
+  padding: 0.7rem 1.4rem;
+  border-radius: 12px;
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.cart-ghost-button:hover {
+  color: #f3d488;
+  border-color: rgba(243, 212, 136, 0.45);
+}
+
+/* ===== Пустая корзина ===== */
+.cart-empty {
+  text-align: center;
+  padding: 3.5rem 1rem;
+  background: rgba(13, 22, 51, 0.7);
+  border: 1.5px dashed rgba(243, 212, 136, 0.4);
+  border-radius: 22px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.cart-empty-title {
+  font-family: 'Neucha', cursive;
+  color: #fdf3d7;
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem;
+}
+
+.cart-empty-sub {
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
+  margin: 0 0 1.5rem;
+}
+
+/* ===== Форма оформления ===== */
+.cart-form {
+  background: rgba(16, 27, 60, 0.82);
+  border: 1px solid rgba(150, 170, 255, 0.14);
+  border-radius: 18px;
+  padding: 1.6rem 1.7rem;
+}
+
+.cart-form-title {
+  font-family: 'Neucha', cursive;
+  color: #fdf3d7;
+  font-size: 1.35rem;
+  margin: 0 0 1.2rem;
+}
+
+.cart-field {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.cart-field-label {
+  display: block;
+  color: #a8b4e0;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+}
+
+.cart-field input,
+.cart-field textarea {
+  width: 100%;
+  background: rgba(10, 18, 44, 0.7);
+  border: 1px solid rgba(168, 180, 224, 0.25);
+  border-radius: 10px;
+  color: #e6ebff;
+  padding: 0.65rem 0.9rem;
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.25s ease;
+}
+
+.cart-field input:focus,
+.cart-field textarea:focus {
+  border-color: rgba(243, 212, 136, 0.55);
+}
+
+.cart-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #aab6e0;
+  font-family: 'Neucha', cursive;
+  font-size: 0.98rem;
+  cursor: pointer;
+  margin: 0.4rem 0 0.6rem;
+}
+
+.cart-checkbox input {
+  accent-color: #e0b264;
+  width: 17px;
+  height: 17px;
+}
+
+.cart-form-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1.4rem;
+  flex-wrap: wrap;
+}
+
+.cart-form-actions.center {
+  justify-content: center;
+}
+
+/* ===== Способы оплаты ===== */
+.cart-pay-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.cart-pay-method {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  background: rgba(10, 18, 44, 0.7);
+  border: 1px solid rgba(168, 180, 224, 0.25);
+  border-radius: 12px;
+  padding: 0.85rem 1.1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+}
+
+.cart-pay-method:hover {
+  border-color: rgba(243, 212, 136, 0.4);
+}
+
+.cart-pay-method.active {
+  border-color: #e0b264;
+  background: rgba(243, 212, 136, 0.1);
+}
+
+.cart-pay-method-label {
+  color: #fdf3d7;
+  font-family: 'Neucha', cursive;
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.cart-pay-method-hint {
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
+  font-size: 0.88rem;
+}
+
+.cart-pay-note {
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  margin: 1.1rem 0 0;
+}
+
+.cart-paying {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1.6rem 0 0.4rem;
+  color: #f3d488;
+  font-family: 'Neucha', cursive;
+}
+
+/* ===== Экран успеха ===== */
+.cart-success {
+  text-align: center;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 1.5rem 0;
+}
+
+.cart-success-star {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  animation: pop-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cart-success-title {
+  font-family: 'Neucha', cursive;
+  color: #fdf3d7;
+  font-size: 1.9rem;
+  margin: 0 0 0.6rem;
+}
+
+.cart-success-sub {
+  color: #a8b4e0;
+  font-family: 'Neucha', cursive;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin: 0 0 1.6rem;
+}
+
+/* ===== Адаптивность ===== */
+@media (max-width: 900px) {
+  .cart-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-side-col {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .cart-page {
+    padding: 5.5rem 1rem 3rem;
+  }
+
+  .cart-item {
+    grid-template-columns: auto 1fr;
+  }
+
+  .cart-item-side {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cart-promo {
+    flex-direction: column;
+  }
+
+  .cart-form-actions {
+    flex-direction: column;
+  }
+
+  .cart-form-actions button {
+    width: 100%;
+  }
+}

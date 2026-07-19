@@ -1,0 +1,167 @@
+/* ===== Колесо Фортуны (заготовка) =====
+   Использует небо и карточки из Stars.css — единый стиль */
+
+.wheel-page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 7rem 1.5rem 4rem;
+  flex: 1;
+}
+
+/* Плашка «раздел в разработке» */
+.wheel-demo-note {
+  display: inline-block;
+  margin-top: 1.2rem;
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  border: 1px dashed rgba(243, 212, 136, 0.45);
+  color: #d9c391;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+}
+
+/* ===== Раскладка ===== */
+.wheel-layout {
+  display: grid;
+  grid-template-columns: auto 300px;
+  gap: 2.4rem;
+  justify-content: center;
+  align-items: start;
+  margin-top: 2.4rem;
+}
+
+/* ===== Сцена с колесом ===== */
+.wheel-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  position: relative;
+}
+
+.wheel-svg {
+  width: min(360px, 82vw);
+  height: auto;
+  /* долгое замедление в конце — эффект честной рулетки */
+  transition: transform 4.2s cubic-bezier(0.12, 0.66, 0.05, 1);
+  filter: drop-shadow(0 10px 40px rgba(4, 8, 25, 0.6));
+}
+
+.wheel-sector-label {
+  fill: #e6ebff;
+  font-family: 'Neucha', cursive;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* Стрелка-указатель над колесом */
+.wheel-pointer {
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 20px solid #f3d488;
+  filter: drop-shadow(0 2px 6px rgba(243, 212, 136, 0.6));
+  margin-bottom: -6px;
+  z-index: 2;
+}
+
+.wheel-spin-button {
+  min-width: 240px;
+}
+
+.wheel-spin-button:disabled {
+  opacity: 0.55;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+
+.wheel-spins-hint {
+  color: #7488c4;
+  font-family: 'Neucha', cursive;
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+/* ===== Правая колонка ===== */
+.wheel-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Карточка приза наследует .sky-card из Stars.css */
+.wheel-prize {
+  width: 100%;
+}
+
+.wheel-legend {
+  background: rgba(16, 27, 60, 0.82);
+  border: 1px solid rgba(150, 170, 255, 0.14);
+  border-radius: 18px;
+  padding: 1.4rem 1.5rem;
+}
+
+.wheel-legend-title {
+  font-family: 'Neucha', cursive;
+  color: #fdf3d7;
+  font-size: 1.25rem;
+  margin: 0 0 1rem;
+}
+
+.wheel-legend-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0;
+  font-family: 'Neucha', cursive;
+}
+
+.wheel-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.wheel-legend-label {
+  color: #cdd6f4;
+  flex: 1;
+}
+
+.wheel-legend-share {
+  color: #f3d488;
+  font-weight: 700;
+}
+
+.wheel-legend-note {
+  color: #7488c4;
+  font-size: 0.85rem;
+  font-family: 'Neucha', cursive;
+  line-height: 1.5;
+  margin: 0.9rem 0 0;
+}
+
+/* ===== Адаптивность ===== */
+@media (max-width: 860px) {
+  .wheel-layout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .wheel-side {
+    width: 100%;
+    max-width: 360px;
+  }
+}
+
+@media (max-width: 600px) {
+  .wheel-page {
+    padding: 5.5rem 1rem 3rem;
+  }
+}

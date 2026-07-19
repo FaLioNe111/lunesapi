@@ -36,9 +36,6 @@ const Header = () => {
           <div className="header-item" onClick={() => navigate('/stars')}>
             Звезды
           </div>
-          <div className="header-item" onClick={() => navigate('/wheel')}>
-            Фортуна
-          </div>
           {/* Корзина со счётчиком выбранных звёзд */}
           <div className="header-item header-cart" onClick={() => navigate('/cart')}>
             Корзина

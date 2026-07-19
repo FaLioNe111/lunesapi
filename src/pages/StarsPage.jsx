@@ -348,12 +348,9 @@ const StarsPage = () => {
             <div className="catalog-end-line"></div>
             <p className="catalog-end-title">На сегодня это всё небо</p>
             <p className="catalog-end-sub">
-              Вы посмотрели все {CATALOG_SIZE} звёзд этой ночи. Не нашли свою —
-              попробуйте испытать удачу.
+              Вы посмотрели все {CATALOG_SIZE} звёзд этой ночи. Какая-то из них
+              уже смотрит на вас в ответ.
             </p>
-            <button className="catalog-end-button" onClick={() => navigate('/wheel')}>
-              Крутить колесо фортуны
-            </button>
           </div>
         )}
       </main>

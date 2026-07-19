@@ -24,6 +24,43 @@ const PROFILE_TABS = [
   { id: 'settings', label: 'Настройки' },
 ];
 
+// Купленные звёзды (демо-набор — как будто куплены раньше)
+const purchasedStars = [
+  {
+    id: 1,
+    name: 'Сириус',
+    constellation: 'Большой Пёс',
+    rarity: 'named',
+    face: 'joy',
+    decor: 'sparkles',
+    giftedTo: 'Анна',
+    link: 'http://localhost:5173/',
+    purchaseDate: '15.03.2024',
+  },
+  {
+    id: 2,
+    name: 'Вега',
+    constellation: 'Лира',
+    rarity: 'named',
+    face: 'happy',
+    decor: 'ring',
+    giftedTo: 'Мария',
+    link: 'http://localhost:5173/',
+    purchaseDate: '22.04.2024',
+  },
+  {
+    id: 3,
+    name: 'Полярная звезда',
+    constellation: 'Малая Медведица',
+    rarity: 'crown',
+    face: 'wink',
+    decor: 'orbit',
+    giftedTo: 'Екатерина',
+    link: 'http://localhost:5173/',
+    purchaseDate: '10.05.2024',
+  },
+];
+
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [copiedId, setCopiedId] = useState(null);
@@ -56,43 +93,6 @@ const ProfilePage = () => {
       setOrders([]);
     }
   }, [navigate]);
-
-  // Купленные звёзды (демо-набор — как будто куплены раньше)
-  const purchasedStars = [
-    {
-      id: 1,
-      name: 'Сириус',
-      constellation: 'Большой Пёс',
-      rarity: 'named',
-      face: 'joy',
-      decor: 'sparkles',
-      giftedTo: 'Анна',
-      link: 'http://localhost:5173/',
-      purchaseDate: '15.03.2024',
-    },
-    {
-      id: 2,
-      name: 'Вега',
-      constellation: 'Лира',
-      rarity: 'named',
-      face: 'happy',
-      decor: 'ring',
-      giftedTo: 'Мария',
-      link: 'http://localhost:5173/',
-      purchaseDate: '22.04.2024',
-    },
-    {
-      id: 3,
-      name: 'Полярная звезда',
-      constellation: 'Малая Медведица',
-      rarity: 'crown',
-      face: 'wink',
-      decor: 'orbit',
-      giftedTo: 'Екатерина',
-      link: 'http://localhost:5173/',
-      purchaseDate: '10.05.2024',
-    },
-  ];
 
   /* Полный список звёзд: демо + купленные через корзину */
   const allStars = useMemo(() => {

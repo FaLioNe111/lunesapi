@@ -44,15 +44,19 @@ export const CartProvider = ({ children }) => {
   }, [items]);
 
   const value = useMemo(() => {
-    /* Добавить звезду. Возвращает false, если она уже в корзине */
+    /* Добавить звезду. Возвращает false, если она уже в корзине.
+       Проверка — по текущему снимку items, а не внутри апдейтера:
+       в StrictMode React вызывает апдейтер дважды, и флаг там врёт */
     const addItem = (star) => {
-      let added = false;
-      setItems((prev) => {
-        if (prev.some((it) => it.cartId === star.cartId)) return prev;
-        added = true;
-        return [...prev, { ...star, giftedTo: '', addedAt: Date.now() }];
-      });
-      return added;
+      const exists = items.some((it) => it.cartId === star.cartId);
+      if (!exists) {
+        setItems((prev) =>
+          prev.some((it) => it.cartId === star.cartId)
+            ? prev
+            : [...prev, { ...star, giftedTo: '', addedAt: Date.now() }]
+        );
+      }
+      return !exists;
     };
 
     const removeItem = (cartId) =>

@@ -231,7 +231,10 @@ const CartPage = () => {
                         созвездие {it.constellation}
                       </div>
                       <p className="cart-item-desc">
-                        {it.desc}; {RARITIES[it.rarity].tagline}
+                        {/* у призов с колеса desc уже равен tagline — не дублируем */}
+                        {it.desc === RARITIES[it.rarity].tagline
+                          ? it.desc
+                          : `${it.desc}; ${RARITIES[it.rarity].tagline}`}
                       </p>
                       <input
                         className="cart-item-recipient"

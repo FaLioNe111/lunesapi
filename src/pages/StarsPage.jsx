@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import StarAvatar from '../components/StarAvatar';
+import { RARITIES, LUMINARY_NAMES, CROWN_NAMES, rollRarity, rollPrice } from '../data/rarities';
+import { useCart } from '../context/CartContext';
 import '../style/index.css';
 import '../style/Stars.css';
 
@@ -55,34 +58,37 @@ const FANCY_DECORS = ['ring', 'orbit', 'sparkles', 'dots'];
 
 const pick = (rng, arr) => arr[Math.floor(rng() * arr.length)];
 
+/* Имя звезды зависит от редкости: высшим категориям — свои списки */
+const rollName = (rarity, rng) => {
+  switch (rarity) {
+    case 'crown':
+      return pick(rng, CROWN_NAMES);
+    case 'luminary':
+      return pick(rng, LUMINARY_NAMES);
+    case 'named':
+      return pick(rng, REAL_NAMES);
+    default:
+      /* безымянные и созвездные — сгенерированные «народные» имена */
+      return pick(rng, NAME_START) + pick(rng, NAME_END);
+  }
+};
+
 const generateStar = (seed, boost = false) => {
   const rng = mulberry32(seed * 2654435761 + 1013904223);
 
-  const roll = rng();
-  let rarity = 'common';
-  if (boost) {
-    rarity = roll > 0.78 ? 'special' : roll > 0.35 ? 'rare' : 'common';
-  } else {
-    rarity = roll > 0.95 ? 'special' : roll > 0.8 ? 'rare' : 'common';
-  }
+  /* редкость выпадает по весам из общего конфига */
+  const rarity = rollRarity(rng(), boost);
 
   const face = pick(rng, FACES);
-  const decor =
-    rarity === 'common' ? pick(rng, COMMON_DECORS) : pick(rng, FANCY_DECORS);
+  const isFancy = RARITIES[rarity].order >= RARITIES.named.order;
+  const decor = isFancy ? pick(rng, FANCY_DECORS) : pick(rng, COMMON_DECORS);
 
-  const name =
-    rng() < 0.5
-      ? pick(rng, REAL_NAMES)
-      : pick(rng, NAME_START) + pick(rng, NAME_END);
-
-  const basePrice =
-    rarity === 'special'
-      ? 6990 + Math.floor(rng() * 4) * 1000
-      : rarity === 'rare'
-        ? 2990 + Math.floor(rng() * 5) * 500
-        : 990 + Math.floor(rng() * 6) * 200;
+  const name = rollName(rarity, rng);
+  const basePrice = rollPrice(rarity, rng);
 
   return {
+    /* cartId — стабильный ключ для корзины (генератор детерминированный) */
+    cartId: `star-${seed}`,
     rarity,
     face,
     decor,
@@ -94,14 +100,22 @@ const generateStar = (seed, boost = false) => {
   };
 };
 
-const RARITY_LABEL = { rare: 'Редкая', special: 'Особенная' };
+/* Текстовые бейджи без значков; безымянным бейдж не нужен */
+const RARITY_LABEL = Object.fromEntries(
+  Object.values(RARITIES)
+    .filter((r) => r.id !== 'nameless')
+    .map((r) => [r.id, r.label])
+);
 
+/* Фильтры: настроение + редкость (из общего конфига) */
 const FILTERS = [
   { id: 'all', label: 'Все' },
   { id: 'joy', label: 'Весёлые' },
   { id: 'sleepy', label: 'Сонные' },
-  { id: 'ringed', label: 'С кольцом' },
-  { id: 'special', label: 'Особенные' },
+  { id: 'constellation', label: 'Созвездные' },
+  { id: 'named', label: 'Именные' },
+  { id: 'luminary', label: 'Светила' },
+  { id: 'crown', label: 'Небесный Венец' },
 ];
 
 const matchesFilter = (star, filter) => {
@@ -110,10 +124,11 @@ const matchesFilter = (star, filter) => {
       return star.face === 'happy' || star.face === 'joy' || star.face === 'wink';
     case 'sleepy':
       return star.face === 'sleepy';
-    case 'ringed':
-      return star.decor === 'ring' || star.decor === 'orbit';
-    case 'special':
-      return star.rarity === 'special';
+    case 'constellation':
+    case 'named':
+    case 'luminary':
+    case 'crown':
+      return star.rarity === filter;
     default:
       return true;
   }
@@ -121,8 +136,15 @@ const matchesFilter = (star, filter) => {
 
 const BURST_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
 
+/* ===== Конечная лента: небо большое, но не бесконечное ===== */
+const CATALOG_SIZE = 96;   // всего карточек в каталоге
+const PAGE_SIZE = 24;      // сколько подгружается за раз
+
 const StarsPage = () => {
-  const [visibleCount, setVisibleCount] = useState(24);
+  const navigate = useNavigate();
+  const { addItem, items: cartItems } = useCart();
+
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [filter, setFilter] = useState('all');
   const [revealed, setRevealed] = useState({});
   const [toast, setToast] = useState(null);
@@ -130,6 +152,8 @@ const StarsPage = () => {
 
   const toastTimer = useRef(null);
   const sentinelRef = useRef(null);
+
+  const reachedEnd = visibleCount >= CATALOG_SIZE;
 
   /* тихий «живой» счётчик подарков */
   useEffect(() => {
@@ -139,21 +163,22 @@ const StarsPage = () => {
     return () => clearInterval(id);
   }, []);
 
-  /* бесконечная лента */
+  /* лента подгружается по прокрутке, но заканчивается на CATALOG_SIZE */
   useEffect(() => {
+    if (reachedEnd) return;
     const el = sentinelRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          setVisibleCount((c) => Math.min(c + 18, 450));
+          setVisibleCount((c) => Math.min(c + PAGE_SIZE, CATALOG_SIZE));
         }
       },
       { rootMargin: '600px' }
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, []);
+  }, [reachedEnd]);
 
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
@@ -163,8 +188,14 @@ const StarsPage = () => {
     toastTimer.current = setTimeout(() => setToast(null), 3200);
   }, []);
 
+  /* «Подарить» = положить в корзину */
   const handleGift = (star) => {
-    showToast(`✨ «${star.name}» приглянулась вам — совсем скоро её можно будет подарить`);
+    const added = addItem(star);
+    showToast(
+      added
+        ? `«${star.name}» ждёт вас в корзине`
+        : `«${star.name}» уже лежит в корзине`
+    );
   };
 
   const revealMystery = (id) => {
@@ -193,36 +224,43 @@ const StarsPage = () => {
     return matchesFilter(card.star, filter);
   });
 
-  const renderStarCard = (id, star, extraClass = '', caption = null) => (
-    <article key={id} className={`sky-card ${star.rarity} ${extraClass}`}>
-      {RARITY_LABEL[star.rarity] && (
-        <span className={`star-badge ${star.rarity}-badge`}>
-          {RARITY_LABEL[star.rarity]}
-        </span>
-      )}
-      <div className="star-visual">
-        <StarAvatar face={star.face} decor={star.decor} size={126} />
-        {extraClass.includes('revealed-pop') && star.rarity === 'special' && (
-          <div className="burst">
-            {BURST_ANGLES.map((a) => (
-              <span key={a} style={{ '--a': `${a}deg` }} />
-            ))}
-          </div>
+  const renderStarCard = (id, star, extraClass = '', caption = null) => {
+    const inCart = cartItems.some((it) => it.cartId === star.cartId);
+    return (
+      <article key={id} className={`sky-card ${star.rarity} ${extraClass}`}>
+        {RARITY_LABEL[star.rarity] && (
+          <span className={`star-badge ${star.rarity}-badge`}>
+            {RARITY_LABEL[star.rarity]}
+          </span>
         )}
-      </div>
-      <h3 className="star-name">{star.name}</h3>
-      <div className="star-constellation">созвездие {star.constellation}</div>
-      <p className="star-desc">{star.desc}</p>
-      <div className="star-meta">{star.distance} св. лет от вас</div>
-      {caption && <div className="star-caption">{caption}</div>}
-      <div className="star-foot">
-        <span className="star-price">{star.price.toLocaleString('ru-RU')} ₽</span>
-        <button className="gift-button" onClick={() => handleGift(star)}>
-          Подарить
-        </button>
-      </div>
-    </article>
-  );
+        <div className="star-visual">
+          <StarAvatar face={star.face} decor={star.decor} size={126} />
+          {extraClass.includes('revealed-pop') &&
+            RARITIES[star.rarity].order >= RARITIES.named.order && (
+              <div className="burst">
+                {BURST_ANGLES.map((a) => (
+                  <span key={a} style={{ '--a': `${a}deg` }} />
+                ))}
+              </div>
+            )}
+        </div>
+        <h3 className="star-name">{star.name}</h3>
+        <div className="star-constellation">созвездие {star.constellation}</div>
+        <p className="star-desc">{star.desc}</p>
+        <div className="star-meta">{star.distance} св. лет от вас</div>
+        {caption && <div className="star-caption">{caption}</div>}
+        <div className="star-foot">
+          <span className="star-price">{star.price.toLocaleString('ru-RU')} ₽</span>
+          <button
+            className={`gift-button ${inCart ? 'in-cart' : ''}`}
+            onClick={() => (inCart ? navigate('/cart') : handleGift(star))}
+          >
+            {inCart ? 'В корзине' : 'Подарить'}
+          </button>
+        </div>
+      </article>
+    );
+  };
 
   return (
     <div className="stars-page-wrapper">
@@ -238,9 +276,9 @@ const StarsPage = () => {
         <section className="catalog-hero">
           <h1 className="catalog-title">Каталог звёзд</h1>
           <p className="catalog-sub">
-            Небо бесконечное — листайте, пока какая-нибудь звезда не посмотрит
-            на вас в ответ. Особенные попадаются редко, но именно их запоминают
-            навсегда.
+            Мы отобрали {CATALOG_SIZE} звёзд этой ночи — листайте, пока
+            какая-нибудь не посмотрит на вас в ответ. Чем выше редкость,
+            тем реже такая звезда встречается на небе.
           </p>
           <div className="catalog-counter">
             <span className="counter-dot"></span>
@@ -272,7 +310,7 @@ const StarsPage = () => {
                 card.id,
                 state.star,
                 'revealed-pop',
-                'сама вас выбрала ✨'
+                'сама вас выбрала'
               );
             }
 
@@ -295,14 +333,29 @@ const StarsPage = () => {
           })}
         </div>
 
-        <div className="catalog-loader" ref={sentinelRef}>
-          <div className="loader-dots">
-            <span></span>
-            <span></span>
-            <span></span>
+        {/* конец ленты: пока не дошли — лоадер, дошли — финальный блок */}
+        {!reachedEnd ? (
+          <div className="catalog-loader" ref={sentinelRef}>
+            <div className="loader-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            небо продолжается…
           </div>
-          небо продолжается…
-        </div>
+        ) : (
+          <div className="catalog-end">
+            <div className="catalog-end-line"></div>
+            <p className="catalog-end-title">На сегодня это всё небо</p>
+            <p className="catalog-end-sub">
+              Вы посмотрели все {CATALOG_SIZE} звёзд этой ночи. Не нашли свою —
+              попробуйте испытать удачу.
+            </p>
+            <button className="catalog-end-button" onClick={() => navigate('/wheel')}>
+              Крутить колесо фортуны
+            </button>
+          </div>
+        )}
       </main>
 
       {toast && <div className="sky-toast">{toast}</div>}

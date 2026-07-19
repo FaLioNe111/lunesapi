@@ -193,17 +193,30 @@
     0 0 30px rgba(243, 212, 136, 0.08);
 }
 
-.sky-card.rare {
+/* ===== Редкости карточек =====
+   nameless — без выделения; далее свечение усиливается с редкостью */
+.sky-card.constellation {
+  border-color: rgba(150, 180, 255, 0.35);
+  box-shadow: 0 0 18px rgba(120, 155, 255, 0.1);
+}
+
+.sky-card.named {
   border-color: rgba(243, 212, 136, 0.38);
   box-shadow: 0 0 22px rgba(243, 212, 136, 0.09);
 }
 
-.sky-card.special {
+.sky-card.luminary {
   border-color: rgba(255, 226, 150, 0.6);
   animation: special-breathe 3.5s ease-in-out infinite;
 }
 
-.sky-card.special::after {
+.sky-card.crown {
+  border-color: rgba(216, 180, 255, 0.65);
+  animation: crown-breathe 3.5s ease-in-out infinite;
+}
+
+.sky-card.luminary::after,
+.sky-card.crown::after {
   content: '';
   position: absolute;
   inset: -60%;
@@ -220,6 +233,11 @@
 @keyframes special-breathe {
   0%, 100% { box-shadow: 0 0 16px rgba(243, 212, 136, 0.12); }
   50% { box-shadow: 0 0 34px rgba(243, 212, 136, 0.28); }
+}
+
+@keyframes crown-breathe {
+  0%, 100% { box-shadow: 0 0 16px rgba(216, 180, 255, 0.14); }
+  50% { box-shadow: 0 0 36px rgba(216, 180, 255, 0.32); }
 }
 
 @keyframes shine {
@@ -239,16 +257,29 @@
   z-index: 2;
 }
 
-.rare-badge {
+/* Бейджи редкостей — только текст, без значков; отличаются цветом */
+.constellation-badge {
+  background: rgba(140, 170, 255, 0.12);
+  color: #aec4ff;
+  border: 1px solid rgba(140, 170, 255, 0.4);
+}
+
+.named-badge {
   background: rgba(243, 212, 136, 0.12);
   color: #f3d488;
   border: 1px solid rgba(243, 212, 136, 0.4);
 }
 
-.special-badge {
+.luminary-badge {
   background: linear-gradient(135deg, rgba(255, 226, 150, 0.22), rgba(240, 163, 94, 0.22));
   color: #ffe9a8;
   border: 1px solid rgba(255, 226, 150, 0.55);
+}
+
+.crown-badge {
+  background: linear-gradient(135deg, rgba(216, 180, 255, 0.22), rgba(243, 212, 136, 0.22));
+  color: #e7d4ff;
+  border: 1px solid rgba(216, 180, 255, 0.6);
 }
 
 /* Визуал звезды */
@@ -274,12 +305,17 @@
   filter: drop-shadow(0 0 6px rgba(246, 215, 138, 0.28));
 }
 
-.sky-card.rare .star-visual svg {
+.sky-card.constellation .star-visual svg,
+.sky-card.named .star-visual svg {
   filter: drop-shadow(0 0 10px rgba(246, 215, 138, 0.4));
 }
 
-.sky-card.special .star-visual svg {
+.sky-card.luminary .star-visual svg {
   filter: drop-shadow(0 0 14px rgba(255, 224, 150, 0.55));
+}
+
+.sky-card.crown .star-visual svg {
+  filter: drop-shadow(0 0 16px rgba(216, 180, 255, 0.6));
 }
 
 .star-name {
@@ -356,6 +392,14 @@
 
 .gift-button:active {
   transform: translateY(0);
+}
+
+/* Звезда уже в корзине — кнопка ведёт в корзину */
+.gift-button.in-cart {
+  background: rgba(243, 212, 136, 0.12);
+  color: #f3d488;
+  border: 1px solid rgba(243, 212, 136, 0.45);
+  box-shadow: none;
 }
 
 /* ===== Загаданная звезда ===== */
@@ -490,6 +534,53 @@
 @keyframes dot-bounce {
   0%, 100% { transform: translateY(0); opacity: 0.5; }
   50% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ===== Конец каталога (лента конечная) ===== */
+.catalog-end {
+  text-align: center;
+  padding: 3.2rem 1rem 1rem;
+}
+
+.catalog-end-line {
+  width: 160px;
+  height: 1px;
+  margin: 0 auto 1.6rem;
+  background: linear-gradient(90deg, transparent, rgba(243, 212, 136, 0.55), transparent);
+}
+
+.catalog-end-title {
+  font-family: 'Neucha', cursive;
+  color: #fdf3d7;
+  font-size: 1.6rem;
+  margin: 0 0 0.5rem;
+}
+
+.catalog-end-sub {
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
+  font-size: 1.02rem;
+  max-width: 420px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.55;
+}
+
+.catalog-end-button {
+  background: transparent;
+  border: 1px solid rgba(243, 212, 136, 0.5);
+  color: #f3d488;
+  padding: 0.7rem 1.8rem;
+  border-radius: 999px;
+  font-family: 'Neucha', cursive;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.catalog-end-button:hover {
+  background: rgba(243, 212, 136, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(243, 212, 136, 0.18);
 }
 
 /* ===== Тост ===== */

@@ -130,6 +130,107 @@
   50% { opacity: 0.5; transform: scale(0.8); }
 }
 
+/* ===== Панель поиска ===== */
+.catalog-toolbar {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.catalog-search {
+  flex: 1;
+  min-width: 240px;
+  max-width: 420px;
+  background: rgba(16, 27, 60, 0.82);
+  border: 1px solid rgba(168, 180, 224, 0.25);
+  border-radius: 999px;
+  color: #e6ebff;
+  padding: 0.6rem 1.2rem;
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.25s ease;
+}
+
+.catalog-search::placeholder {
+  color: #7488c4;
+}
+
+.catalog-search:focus {
+  border-color: rgba(243, 212, 136, 0.55);
+}
+
+.catalog-select {
+  background: rgba(16, 27, 60, 0.82);
+  border: 1px solid rgba(168, 180, 224, 0.25);
+  border-radius: 999px;
+  color: #cdd6f4;
+  padding: 0.6rem 1rem;
+  font-family: 'Neucha', cursive;
+  font-size: 0.98rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.25s ease;
+}
+
+.catalog-select:hover,
+.catalog-select:focus {
+  border-color: rgba(243, 212, 136, 0.5);
+}
+
+.catalog-select option {
+  background: #101b3c;
+  color: #e6ebff;
+}
+
+/* Счётчик результатов поиска */
+.catalog-found {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
+  font-size: 0.98rem;
+  margin: -1rem 0 1.6rem;
+}
+
+.catalog-found-reset {
+  background: none;
+  border: none;
+  color: #f3d488;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  padding: 0;
+}
+
+/* Пустой результат поиска */
+.catalog-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.catalog-reset-button {
+  margin-top: 1.2rem;
+  background: rgba(243, 212, 136, 0.12);
+  color: #f3d488;
+  border: 1px solid rgba(243, 212, 136, 0.45);
+  padding: 0.65rem 1.5rem;
+  border-radius: 999px;
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.catalog-reset-button:hover {
+  background: rgba(243, 212, 136, 0.2);
+}
+
 /* ===== Фильтры ===== */
 .catalog-filters {
   display: flex;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -16,6 +16,35 @@ const RARITY_LABEL = Object.fromEntries(
     .map((r) => [r.id, r.label])
 );
 
+/* ===== Фильтры каталога =====
+   Сейчас применяются на фронте; при подключении бэкенда те же значения
+   уходят параметрами запроса. TODO(backend): fetchCatalog({ search, rarity, price, sort }) */
+const PRICE_FILTERS = [
+  { id: 'all', label: 'Любая цена' },
+  { id: 'lt3000', label: 'До 3 000 ₽' },
+  { id: 'mid', label: '3 000–10 000 ₽' },
+  { id: 'gt10000', label: 'От 10 000 ₽' },
+];
+
+const SORT_OPTIONS = [
+  { id: 'default', label: 'По редкости' },
+  { id: 'asc', label: 'Сначала дешевле' },
+  { id: 'desc', label: 'Сначала дороже' },
+];
+
+const matchesPrice = (star, priceFilter) => {
+  switch (priceFilter) {
+    case 'lt3000':
+      return star.price < 3000;
+    case 'mid':
+      return star.price >= 3000 && star.price <= 10000;
+    case 'gt10000':
+      return star.price > 10000;
+    default:
+      return true;
+  }
+};
+
 const StarsPage = () => {
   const navigate = useNavigate();
   const { addItem, items: cartItems } = useCart();
@@ -27,7 +56,53 @@ const StarsPage = () => {
   const [toast, setToast] = useState(null);
   const [gifted, setGifted] = useState(() => 114 + new Date().getHours() * 3);
 
+  /* состояние фильтров поиска */
+  const [search, setSearch] = useState('');
+  const [rarityFilter, setRarityFilter] = useState('all');
+  const [priceFilter, setPriceFilter] = useState('all');
+  const [sortOrder, setSortOrder] = useState('default');
+
   const toastTimer = useRef(null);
+
+  const filtersActive =
+    search.trim() !== '' ||
+    rarityFilter !== 'all' ||
+    priceFilter !== 'all' ||
+    sortOrder !== 'default';
+
+  const resetFilters = () => {
+    setSearch('');
+    setRarityFilter('all');
+    setPriceFilter('all');
+    setSortOrder('default');
+  };
+
+  /* Применение фильтров к каталогу; пустые секции скрываются */
+  const shownSections = useMemo(() => {
+    if (!sections) return [];
+    const q = search.trim().toLowerCase();
+    return sections
+      .filter((sec) => rarityFilter === 'all' || sec.id === rarityFilter)
+      .map((sec) => {
+        let stars = sec.stars.filter((s) => {
+          if (
+            q &&
+            !s.name.toLowerCase().includes(q) &&
+            !(s.constellation || '').toLowerCase().includes(q) &&
+            !(s.system || '').toLowerCase().includes(q)
+          ) {
+            return false;
+          }
+          return matchesPrice(s, priceFilter);
+        });
+        if (sortOrder === 'asc') stars = [...stars].sort((a, b) => a.price - b.price);
+        if (sortOrder === 'desc') stars = [...stars].sort((a, b) => b.price - a.price);
+        return { ...sec, stars };
+      })
+      .filter((sec) => sec.stars.length > 0);
+  }, [sections, search, rarityFilter, priceFilter, sortOrder]);
+
+  const foundCount = shownSections.reduce((sum, s) => sum + s.stars.length, 0);
 
   useEffect(() => {
     let alive = true;
@@ -130,6 +205,65 @@ const StarsPage = () => {
           </div>
         </section>
 
+        {/* ===== Панель поиска и фильтров ===== */}
+        <div className="catalog-toolbar">
+          <input
+            className="catalog-search"
+            type="search"
+            placeholder="Поиск по имени или созвездию…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select
+            className="catalog-select"
+            value={priceFilter}
+            onChange={(e) => setPriceFilter(e.target.value)}
+          >
+            {PRICE_FILTERS.map((p) => (
+              <option key={p.id} value={p.id}>{p.label}</option>
+            ))}
+          </select>
+          <select
+            className="catalog-select"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            {SORT_OPTIONS.map((s) => (
+              <option key={s.id} value={s.id}>{s.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Чипы редкостей */}
+        <div className="catalog-filters">
+          <button
+            className={`filter-chip ${rarityFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setRarityFilter('all')}
+          >
+            Все
+          </button>
+          {[...Object.values(RARITIES)]
+            .sort((a, b) => b.order - a.order)
+            .map((r) => (
+              <button
+                key={r.id}
+                className={`filter-chip ${rarityFilter === r.id ? 'active' : ''}`}
+                onClick={() => setRarityFilter(r.id)}
+              >
+                {r.label}
+              </button>
+            ))}
+        </div>
+
+        {filtersActive && sections && (
+          <div className="catalog-found">
+            найдено {foundCount} из {totalStars}
+            <button className="catalog-found-reset" onClick={resetFilters}>
+              сбросить
+            </button>
+          </div>
+        )}
+
         {sections === null ? (
           /* каталог ещё загружается */
           <div className="catalog-loading">
@@ -140,10 +274,21 @@ const StarsPage = () => {
             </div>
             открываем небо…
           </div>
+        ) : foundCount === 0 ? (
+          /* по фильтрам ничего не нашлось */
+          <div className="catalog-empty">
+            <p className="catalog-end-title">Таких звёзд сегодня не видно</p>
+            <p className="catalog-end-sub">
+              Попробуйте смягчить условия — небо большое.
+            </p>
+            <button className="catalog-reset-button" onClick={resetFilters}>
+              Сбросить фильтры
+            </button>
+          </div>
         ) : (
           <>
             {/* Секции по редкости */}
-            {sections.map((sec) => (
+            {shownSections.map((sec) => (
               <section
                 key={sec.id}
                 id={`rarity-${sec.id}`}

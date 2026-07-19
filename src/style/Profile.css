@@ -1,0 +1,363 @@
+/* Обёртка страницы профиля */
+.profile-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Контейнер профиля */
+.profile-container {
+  position: relative;
+  flex: 1;
+  padding: 2rem;
+  overflow: hidden;
+  background: #060c22;
+}
+
+/* Видео фон */
+.profile-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Затемнение */
+.profile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(5, 10, 30, 0.65);
+  z-index: 1;
+}
+
+/* Контент */
+.profile-content {
+  position: relative;
+  z-index: 10;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* Заголовок профиля */
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid rgba(243, 212, 136, 0.3);
+}
+
+.profile-title {
+  color: #f3d488;
+  font-size: 3rem;
+  font-weight: 700;
+  text-shadow: 0 0 30px rgba(243, 212, 136, 0.5);
+  margin: 0;
+}
+
+/* Кнопка выхода */
+.logout-button {
+  background: rgba(240, 138, 138, 0.2);
+  border: 1px solid #f08a8a;
+  color: #f08a8a;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+  background: rgba(240, 138, 138, 0.4);
+  box-shadow: 0 0 20px rgba(240, 138, 138, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Секции профиля */
+.profile-section {
+  margin-bottom: 3rem;
+  background: rgba(15, 24, 53, 0.75);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(243, 212, 136, 0.2);
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.section-title {
+  color: #f3d488;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  text-shadow: 0 0 20px rgba(243, 212, 136, 0.3);
+}
+
+/* Карточка информации о пользователе */
+.user-info-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(243, 212, 136, 0.15);
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.info-value {
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+/* Сообщение об отсутствии звёзд */
+.no-stars {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  border: 1px dashed rgba(243, 212, 136, 0.3);
+}
+
+.no-stars p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.browse-stars-button {
+  background: linear-gradient(135deg, #f3d488, #e2b56c);
+  border: none;
+  color: #0a0a0a;
+  padding: 1rem 2.5rem;
+  border-radius: 8px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(243, 212, 136, 0.4);
+}
+
+.browse-stars-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(243, 212, 136, 0.6);
+}
+
+/* Сетка звёзд */
+.stars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+/* Карточка звезды */
+.star-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(243, 212, 136, 0.2);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.star-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(243, 212, 136, 0.4);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(243, 212, 136, 0.2);
+}
+
+.star-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.star-name {
+  color: #f3d488;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.star-constellation {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+}
+
+.star-details {
+  margin-bottom: 1.5rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.75rem 0;
+}
+
+.detail-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+}
+
+.detail-value {
+  color: #fff;
+  font-size: 0.95rem;
+  text-align: right;
+  max-width: 60%;
+}
+
+/* Действия со звездой */
+.star-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.view-star-button {
+  background: linear-gradient(135deg, #6d87e8, #4f6bd0);
+  color: #fff;
+  text-decoration: none;
+  padding: 0.875rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.view-star-button:hover {
+  background: linear-gradient(135deg, #4f6bd0, #3e57b0);
+  box-shadow: 0 4px 15px rgba(109, 135, 232, 0.4);
+  transform: translateY(-2px);
+}
+
+.copy-link-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(243, 212, 136, 0.3);
+  color: #f3d488;
+  padding: 0.875rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.copy-link-button:hover {
+  background: rgba(243, 212, 136, 0.2);
+  border-color: #f3d488;
+}
+
+.copied-text {
+  color: #4ade80;
+}
+
+.copy-text {
+  color: #f3d488;
+}
+
+/* Анимация появления */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+  .stars-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 1rem;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .profile-title {
+    font-size: 2rem;
+  }
+
+  .profile-section {
+    padding: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .info-value {
+    font-size: 1rem;
+  }
+
+  .stars-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .detail-value {
+    text-align: left;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-title {
+    font-size: 1.75rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+
+  .star-name {
+    font-size: 1.25rem;
+  }
+}

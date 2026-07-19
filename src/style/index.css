@@ -1,0 +1,691 @@
+@import url('https://fonts.googleapis.com/css2?family=Neucha&display=swap');
+@import "tailwindcss";
+/* ===== Общие стили ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Neucha', cursive;
+  background-color: #0a1128;
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===== Обёртка страницы ===== */
+.home-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ===== Header ===== */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.25); /* Было 0.7, стало 0.25 — более прозрачный */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 50;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header-item {
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Neucha', cursive;
+}
+
+.header-item:hover {
+  color: #f3d488;
+  transform: translateY(-2px);
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.header-logo svg {
+  filter: drop-shadow(0 0 6px rgba(243, 212, 136, 0.5));
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.header-user {
+  color: #f3d488;
+}
+
+/* ===== Hero секция ===== */
+.hero-section {
+  position: relative;
+  width: 100%;
+  margin-top: 60px;
+}
+
+.hero-image-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.hero-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* ===== Телескоп с анимацией ===== */
+.telescope-container {
+  position: absolute;
+  right: 15%;
+  bottom: 25%;
+  z-index: 10;
+  cursor: pointer;
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 150px;
+  height: 150px;
+}
+
+.telescope-container:hover {
+  transform: scale(1.25) rotate(3deg);
+}
+
+.telescope-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(243, 212, 136, 0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.telescope-container:hover .telescope-glow {
+  opacity: 1;
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+/* ===== Подсказка при наведении ===== */
+.telescope-hint {
+  position: absolute;
+  right: 12%;
+  bottom: 20%;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 20;
+  border: 1px solid rgba(243, 212, 136, 0.3);
+  font-family: 'Neucha', cursive;
+}
+
+.telescope-container:hover + .telescope-hint {
+  opacity: 1;
+}
+
+/* ===== Footer ===== */
+.footer {
+  background: #070d1f;
+  color: #ffffff;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: auto;
+}
+
+.footer-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.footer-top {
+  padding: 2.5rem 0 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-main {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 3rem;
+  align-items: center;
+}
+
+.footer-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  font-family: 'Neucha', cursive;
+}
+
+.footer-nav {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.footer-link {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+  font-family: 'Neucha', cursive;
+}
+
+.footer-link:hover {
+  color: #f3d488;
+}
+
+.footer-contacts {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.footer-phone,
+.footer-email {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  white-space: nowrap;
+  font-family: 'Neucha', cursive;
+}
+
+.footer-phone:hover,
+.footer-email:hover {
+  color: #f3d488;
+}
+
+.footer-social {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.footer-social-link {
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.footer-social-link:hover {
+  background: #f3d488;
+  border-color: #f3d488;
+  color: #0a0a0a;
+  transform: translateY(-2px);
+}
+
+.footer-bottom {
+  padding: 1.5rem 0 1rem;
+}
+
+.footer-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.footer-legal {
+  display: flex;
+  gap: 2rem;
+}
+
+.footer-legal-link {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.3s ease;
+  font-family: 'Neucha', cursive;
+}
+
+.footer-legal-link:hover {
+  color: #ffffff;
+}
+
+.footer-payment {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.payment-icon {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 50px;
+  text-align: center;
+  font-family: 'Neucha', cursive;
+}
+
+.footer-company-info {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-family: 'Neucha', cursive;
+}
+
+/* ===== Start Page ===== */
+.start-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #070d1f;
+}
+
+.start-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem 4rem;
+  background: linear-gradient(180deg, #070d1f 0%, #0d1734 100%);
+}
+
+.loading-content {
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Печатная машинка */
+.typewriter-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 2.5rem;
+}
+
+.typewriter-small {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  animation: typewriter-bounce 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(243, 212, 136, 0.3));
+}
+
+@keyframes typewriter-bounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(-2deg);
+  }
+  75% {
+    transform: translateY(-5px) rotate(2deg);
+  }
+}
+
+.typewriter-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(243, 212, 136, 0.4) 0%, transparent 70%);
+  animation: pulse-ring 2s ease-out infinite;
+  z-index: 1;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
+
+/* Текст */
+.text-container {
+  margin-bottom: 2rem;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-text {
+  color: #f3d488;
+  font-family: 'Neucha', cursive;
+  font-size: 1.75rem;
+  line-height: 1.6;
+  font-weight: 400;
+  text-align: center;
+  letter-spacing: 1px;
+  text-shadow: 0 0 20px rgba(243, 212, 136, 0.3);
+}
+
+.cursor {
+  color: #f3d488;
+  animation: cursor-blink 0.8s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes cursor-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Прогресс бар */
+.progress-wrapper {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.progress-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.progress-line {
+  height: 100%;
+  background: linear-gradient(90deg, #f3d488, #e2b56c);
+  border-radius: 2px;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 10px rgba(243, 212, 136, 0.5);
+  position: relative;
+}
+
+.progress-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-20px);
+  }
+  100% {
+    transform: translateX(20px);
+  }
+}
+
+.progress-text {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.875rem;
+  font-family: 'Neucha', cursive;
+}
+
+/* Завершение загрузки */
+.start-complete {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem 4rem;
+  background: linear-gradient(180deg, #070d1f 0%, #0d1734 100%);
+}
+
+.complete-content {
+  text-align: center;
+  animation: fade-in-up 0.6s ease-out;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.complete-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  animation: icon-appear 0.5s ease-out;
+}
+
+@keyframes icon-appear {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.complete-title {
+  color: #ffffff;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 30px rgba(243, 212, 136, 0.3);
+  font-family: 'Neucha', cursive;
+}
+
+.complete-text {
+  color: #4ade80;
+  font-size: 1.25rem;
+  margin-bottom: 2.5rem;
+  font-weight: 500;
+  font-family: 'Neucha', cursive;
+}
+
+.complete-button {
+  background: linear-gradient(135deg, #f3d488, #e2b56c);
+  color: #0a0a0a;
+  border: none;
+  padding: 1rem 2.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(243, 212, 136, 0.4);
+  font-family: 'Neucha', cursive;
+}
+
+.complete-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(243, 212, 136, 0.6);
+}
+
+.complete-button:active {
+  transform: translateY(0);
+}
+
+/* ===== Адаптивность ===== */
+@media (max-width: 1024px) {
+  .footer-main {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  
+  .telescope-container {
+    right: 10%;
+    bottom: 20%;
+  }
+}
+
+@media (max-width: 768px) {
+  .telescope-container {
+    right: 5%;
+    bottom: 15%;
+    width: 100px;
+    height: 100px;
+  }
+  
+  .telescope-container:hover {
+    transform: scale(1.15);
+  }
+  
+  .telescope-hint {
+    right: 2%;
+    bottom: 10%;
+    font-size: 0.75rem;
+  }
+  
+  .telescope-glow {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .footer-main {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .footer-title {
+    font-size: 1.5rem;
+  }
+  
+  .footer-bottom-row {
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+  
+  .footer-legal {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .footer-container {
+    padding: 0 1rem;
+  }
+  
+  .header-content {
+    padding: 0.75rem 1rem;
+  }
+  
+  .header-item {
+    font-size: 1rem;
+  }
+  
+  .typewriter-wrapper {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 2rem;
+  }
+  
+  .typewriter-small {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .loading-text {
+    font-size: 1.25rem;
+  }
+  
+  .complete-title {
+    font-size: 2rem;
+  }
+  
+  .complete-text {
+    font-size: 1.125rem;
+  }
+  
+  .progress-wrapper {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .start-loading,
+  .start-complete {
+    padding: 5rem 1rem 3rem;
+  }
+  
+  .loading-text {
+    font-size: 1.125rem;
+  }
+  
+  .complete-title {
+    font-size: 1.75rem;
+  }
+  
+  .complete-button {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+  }
+}

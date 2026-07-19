@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import StarAvatar from '../components/StarAvatar';
-import { RARITIES, LUMINARY_NAMES, CROWN_NAMES, rollRarity, rollPrice } from '../data/rarities';
+import { RARITIES, CROWN_NAMES, rollPrice } from '../data/rarities';
 import { useCart } from '../context/CartContext';
 import '../style/index.css';
 import '../style/Stars.css';
@@ -58,47 +58,79 @@ const FANCY_DECORS = ['ring', 'orbit', 'sparkles', 'dots'];
 
 const pick = (rng, arr) => arr[Math.floor(rng() * arr.length)];
 
-/* Имя звезды зависит от редкости: высшим категориям — свои списки */
-const rollName = (rarity, rng) => {
+/* Сгенерированное «народное» имя. Формула детерминированная и не
+   повторяется внутри секции (начала различны для первых 12 индексов) */
+const generatedName = (seed, shift) =>
+  NAME_START[(seed + shift) % NAME_START.length] +
+  NAME_END[((seed + Math.floor(seed / NAME_START.length)) * 7 + shift * 3) % NAME_END.length];
+
+/* Имя звезды по редкости: высшим категориям — свои списки */
+const rollName = (rarity, seed) => {
   switch (rarity) {
     case 'crown':
-      return pick(rng, CROWN_NAMES);
-    case 'luminary':
-      return pick(rng, LUMINARY_NAMES);
+      return CROWN_NAMES[seed % CROWN_NAMES.length];
     case 'named':
-      return pick(rng, REAL_NAMES);
+      return REAL_NAMES[seed % REAL_NAMES.length];
+    case 'constellation':
+      return generatedName(seed, 5);
     default:
-      /* безымянные и созвездные — сгенерированные «народные» имена */
-      return pick(rng, NAME_START) + pick(rng, NAME_END);
+      return generatedName(seed, 0);
   }
 };
 
-const generateStar = (seed, boost = false) => {
-  const rng = mulberry32(seed * 2654435761 + 1013904223);
-
-  /* редкость выпадает по весам из общего конфига */
-  const rarity = rollRarity(rng(), boost);
+/* Генерация звезды заданной редкости (детерминированная по seed) */
+const generateStar = (seed, rarity) => {
+  const rng = mulberry32((seed + RARITIES[rarity].order * 977) * 2654435761 + 1013904223);
 
   const face = pick(rng, FACES);
   const isFancy = RARITIES[rarity].order >= RARITIES.named.order;
   const decor = isFancy ? pick(rng, FANCY_DECORS) : pick(rng, COMMON_DECORS);
 
-  const name = rollName(rarity, rng);
-  const basePrice = rollPrice(rarity, rng);
-
   return {
-    /* cartId — стабильный ключ для корзины (генератор детерминированный) */
-    cartId: `star-${seed}`,
+    /* cartId — стабильный ключ для корзины */
+    cartId: `star-${rarity}-${seed}`,
     rarity,
     face,
     decor,
-    name,
-    constellation: pick(rng, CONSTELLATIONS),
+    name: rollName(rarity, seed),
+    /* созвездным — своё созвездие без повторов внутри секции */
+    constellation:
+      rarity === 'constellation'
+        ? CONSTELLATIONS[seed % CONSTELLATIONS.length]
+        : pick(rng, CONSTELLATIONS),
     desc: pick(rng, DESCRIPTIONS),
     distance: Math.floor(rng() * 900 + 40),
-    price: basePrice,
+    price: rollPrice(rarity, rng),
   };
 };
+
+/* ===== Светила: Солнце и Луна — задаются вручную, с кастомными карточками ===== */
+const LUMINARIES = [
+  {
+    cartId: 'star-luminary-sun',
+    rarity: 'luminary',
+    variant: 'sun',
+    face: 'joy',
+    decor: 'none',
+    name: 'Солнце',
+    system: 'Солнечная система',
+    desc: 'греет всё живое и ничего не просит взамен',
+    metaText: '8 световых минут от вас',
+    price: 24990,
+  },
+  {
+    cartId: 'star-luminary-moon',
+    rarity: 'luminary',
+    variant: 'moon',
+    face: 'sleepy',
+    decor: 'none',
+    name: 'Луна',
+    system: 'Солнечная система',
+    desc: 'ведёт счёт приливам и снам',
+    metaText: '1,3 световой секунды от вас',
+    price: 19990,
+  },
+];
 
 /* Текстовые бейджи без значков; безымянным бейдж не нужен */
 const RARITY_LABEL = Object.fromEntries(
@@ -107,53 +139,34 @@ const RARITY_LABEL = Object.fromEntries(
     .map((r) => [r.id, r.label])
 );
 
-/* Фильтры: настроение + редкость (из общего конфига) */
-const FILTERS = [
-  { id: 'all', label: 'Все' },
-  { id: 'joy', label: 'Весёлые' },
-  { id: 'sleepy', label: 'Сонные' },
-  { id: 'constellation', label: 'Созвездные' },
-  { id: 'named', label: 'Именные' },
-  { id: 'luminary', label: 'Светила' },
-  { id: 'crown', label: 'Небесный Венец' },
-];
+/* ===== План каталога: секции по редкости, от высшей к обычной =====
+   Светила заданы вручную, остальные секции генерируются по количеству */
+const SECTION_ORDER = ['crown', 'luminary', 'named', 'constellation', 'nameless'];
+const SECTION_SIZES = { crown: 3, named: 12, constellation: 12, nameless: 16 };
 
-const matchesFilter = (star, filter) => {
-  switch (filter) {
-    case 'joy':
-      return star.face === 'happy' || star.face === 'joy' || star.face === 'wink';
-    case 'sleepy':
-      return star.face === 'sleepy';
-    case 'constellation':
-    case 'named':
-    case 'luminary':
-    case 'crown':
-      return star.rarity === filter;
-    default:
-      return true;
-  }
-};
-
-const BURST_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
-
-/* ===== Конечная лента: небо большое, но не бесконечное ===== */
-const CATALOG_SIZE = 96;   // всего карточек в каталоге
-const PAGE_SIZE = 24;      // сколько подгружается за раз
+const buildSections = () =>
+  SECTION_ORDER.map((rarityId) => ({
+    id: rarityId,
+    stars:
+      rarityId === 'luminary'
+        ? LUMINARIES
+        : Array.from({ length: SECTION_SIZES[rarityId] }, (_, i) =>
+            generateStar(i, rarityId)
+          ),
+  }));
 
 const StarsPage = () => {
   const navigate = useNavigate();
   const { addItem, items: cartItems } = useCart();
 
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [filter, setFilter] = useState('all');
-  const [revealed, setRevealed] = useState({});
   const [toast, setToast] = useState(null);
   const [gifted, setGifted] = useState(() => 114 + new Date().getHours() * 3);
 
   const toastTimer = useRef(null);
-  const sentinelRef = useRef(null);
 
-  const reachedEnd = visibleCount >= CATALOG_SIZE;
+  /* каталог собирается один раз — генератор детерминированный */
+  const sections = useMemo(buildSections, []);
+  const totalStars = sections.reduce((sum, s) => sum + s.stars.length, 0);
 
   /* тихий «живой» счётчик подарков */
   useEffect(() => {
@@ -162,23 +175,6 @@ const StarsPage = () => {
     }, 7000);
     return () => clearInterval(id);
   }, []);
-
-  /* лента подгружается по прокрутке, но заканчивается на CATALOG_SIZE */
-  useEffect(() => {
-    if (reachedEnd) return;
-    const el = sentinelRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setVisibleCount((c) => Math.min(c + PAGE_SIZE, CATALOG_SIZE));
-        }
-      },
-      { rootMargin: '600px' }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [reachedEnd]);
 
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
@@ -198,36 +194,20 @@ const StarsPage = () => {
     );
   };
 
-  const revealMystery = (id) => {
-    setRevealed((r) => {
-      if (r[id]) return r;
-      return { ...r, [id]: { status: 'rolling' } };
-    });
-    setTimeout(() => {
-      const star = generateStar(id * 7919 + 13, true);
-      setRevealed((r) => ({ ...r, [id]: { status: 'done', star } }));
-    }, 1500);
+  /* Плавный переход к секции редкости */
+  const scrollToSection = (rarityId) => {
+    document
+      .getElementById(`rarity-${rarityId}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const cards = useMemo(
-    () =>
-      Array.from({ length: visibleCount }, (_, i) =>
-        i % 11 === 7
-          ? { type: 'mystery', id: i }
-          : { type: 'star', id: i, star: generateStar(i) }
-      ),
-    [visibleCount]
-  );
-
-  const shownCards = cards.filter((card) => {
-    if (card.type === 'mystery') return filter === 'all';
-    return matchesFilter(card.star, filter);
-  });
-
-  const renderStarCard = (id, star, extraClass = '', caption = null) => {
+  const renderStarCard = (star) => {
     const inCart = cartItems.some((it) => it.cartId === star.cartId);
     return (
-      <article key={id} className={`sky-card ${star.rarity} ${extraClass}`}>
+      <article
+        key={star.cartId}
+        className={`sky-card ${star.rarity} ${star.variant || ''}`}
+      >
         {RARITY_LABEL[star.rarity] && (
           <span className={`star-badge ${star.rarity}-badge`}>
             {RARITY_LABEL[star.rarity]}
@@ -235,20 +215,15 @@ const StarsPage = () => {
         )}
         <div className="star-visual">
           <StarAvatar face={star.face} decor={star.decor} size={126} />
-          {extraClass.includes('revealed-pop') &&
-            RARITIES[star.rarity].order >= RARITIES.named.order && (
-              <div className="burst">
-                {BURST_ANGLES.map((a) => (
-                  <span key={a} style={{ '--a': `${a}deg` }} />
-                ))}
-              </div>
-            )}
         </div>
         <h3 className="star-name">{star.name}</h3>
-        <div className="star-constellation">созвездие {star.constellation}</div>
+        <div className="star-constellation">
+          {star.system || `созвездие ${star.constellation}`}
+        </div>
         <p className="star-desc">{star.desc}</p>
-        <div className="star-meta">{star.distance} св. лет от вас</div>
-        {caption && <div className="star-caption">{caption}</div>}
+        <div className="star-meta">
+          {star.metaText || `${star.distance} св. лет от вас`}
+        </div>
         <div className="star-foot">
           <span className="star-price">{star.price.toLocaleString('ru-RU')} ₽</span>
           <button
@@ -276,9 +251,8 @@ const StarsPage = () => {
         <section className="catalog-hero">
           <h1 className="catalog-title">Каталог звёзд</h1>
           <p className="catalog-sub">
-            Мы отобрали {CATALOG_SIZE} звёзд этой ночи — листайте, пока
-            какая-нибудь не посмотрит на вас в ответ. Чем выше редкость,
-            тем реже такая звезда встречается на небе.
+            Небо разложено по редкостям — от Небесного Венца до безымянных
+            звёзд. Чем выше категория, тем меньше таких на небе.
           </p>
           <div className="catalog-counter">
             <span className="counter-dot"></span>
@@ -286,73 +260,48 @@ const StarsPage = () => {
           </div>
         </section>
 
+        {/* Быстрый переход по категориям */}
         <div className="catalog-filters">
-          {FILTERS.map((f) => (
+          {SECTION_ORDER.map((rarityId) => (
             <button
-              key={f.id}
-              className={`filter-chip ${filter === f.id ? 'active' : ''}`}
-              onClick={() => setFilter(f.id)}
+              key={rarityId}
+              className="filter-chip"
+              onClick={() => scrollToSection(rarityId)}
             >
-              {f.label}
+              {RARITIES[rarityId].label}
             </button>
           ))}
         </div>
 
-        <div className="catalog-grid">
-          {shownCards.map((card) => {
-            if (card.type === 'star') {
-              return renderStarCard(card.id, card.star);
-            }
-
-            const state = revealed[card.id];
-            if (state?.status === 'done') {
-              return renderStarCard(
-                card.id,
-                state.star,
-                'revealed-pop',
-                'сама вас выбрала'
-              );
-            }
-
-            const rolling = state?.status === 'rolling';
-            return (
-              <article
-                key={card.id}
-                className={`sky-card mystery-card ${rolling ? 'rolling' : ''}`}
-                onClick={() => revealMystery(card.id)}
-              >
-                <div className="mystery-q">?</div>
-                <h3 className="mystery-title">Загаданная звезда</h3>
-                <p className="mystery-hint">
-                  {rolling
-                    ? 'звезда выбирает вас…'
-                    : 'нажмите — и узнаете, кто прячется'}
-                </p>
-              </article>
-            );
-          })}
-        </div>
-
-        {/* конец ленты: пока не дошли — лоадер, дошли — финальный блок */}
-        {!reachedEnd ? (
-          <div className="catalog-loader" ref={sentinelRef}>
-            <div className="loader-dots">
-              <span></span>
-              <span></span>
-              <span></span>
+        {/* Секции по редкости */}
+        {sections.map((sec) => (
+          <section
+            key={sec.id}
+            id={`rarity-${sec.id}`}
+            className="rarity-section"
+          >
+            <div className="rarity-section-head">
+              <h2 className={`rarity-section-title ${sec.id}`}>
+                {RARITIES[sec.id].label}
+              </h2>
+              <p className="rarity-section-tagline">
+                {RARITIES[sec.id].groupTagline}
+              </p>
             </div>
-            небо продолжается…
-          </div>
-        ) : (
-          <div className="catalog-end">
-            <div className="catalog-end-line"></div>
-            <p className="catalog-end-title">На сегодня это всё небо</p>
-            <p className="catalog-end-sub">
-              Вы посмотрели все {CATALOG_SIZE} звёзд этой ночи. Какая-то из них
-              уже смотрит на вас в ответ.
-            </p>
-          </div>
-        )}
+            <div className={`catalog-grid ${sec.id === 'luminary' ? 'luminary-grid' : ''}`}>
+              {sec.stars.map((star) => renderStarCard(star))}
+            </div>
+          </section>
+        ))}
+
+        <div className="catalog-end">
+          <div className="catalog-end-line"></div>
+          <p className="catalog-end-title">На сегодня это всё небо</p>
+          <p className="catalog-end-sub">
+            {totalStars} звёзд — от Небесного Венца до безымянных. Какая-то из
+            них уже смотрит на вас в ответ.
+          </p>
+        </div>
       </main>
 
       {toast && <div className="sky-toast">{toast}</div>}

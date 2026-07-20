@@ -16,9 +16,9 @@ const Footer = () => {
             {/* Навигация */}
             <nav className="footer-nav">
               <Link to="/stars" className="footer-link">Каталог</Link>
-              <a href="#delivery" className="footer-link">Доставка и оплата</a>
-              <a href="#returns" className="footer-link">Возврат</a>
-              <a href="#contacts" className="footer-link">Контакты</a>
+              <Link to="/info/delivery" className="footer-link">Доставка и оплата</Link>
+              <Link to="/info/returns" className="footer-link">Возврат</Link>
+              <Link to="/info/contacts" className="footer-link">Контакты</Link>
             </nav>
             
             {/* Контакты */}
@@ -48,9 +48,9 @@ const Footer = () => {
           <div className="footer-bottom-row">
             {/* Юридическая информация */}
             <div className="footer-legal">
-              <a href="#privacy" className="footer-legal-link">Политика конфиденциальности</a>
-              <a href="#pd" className="footer-legal-link">Согласие на обработку ПДн</a>
-              <a href="#offer" className="footer-legal-link">Оферта</a>
+              <Link to="/info/privacy" className="footer-legal-link">Политика конфиденциальности</Link>
+              <Link to="/info/pd" className="footer-legal-link">Согласие на обработку ПДн</Link>
+              <Link to="/info/offer" className="footer-legal-link">Оферта</Link>
             </div>
             
             {/* Платёжные системы */}

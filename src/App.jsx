@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import StartPage from './pages/StartPage';
 import StarsPage from './pages/StarsPage';
+import StarPage from './pages/StarPage';
 import CartPage from './pages/CartPage';
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
@@ -18,6 +19,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/start" element={<StartPage />} />
           <Route path="/stars" element={<StarsPage />} />
+          <Route path="/star/:cartId" element={<StarPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />

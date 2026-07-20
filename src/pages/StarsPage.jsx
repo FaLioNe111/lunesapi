@@ -150,7 +150,8 @@ const StarsPage = () => {
     return (
       <article
         key={star.cartId}
-        className={`sky-card ${star.rarity} ${star.variant || ''}`}
+        className={`sky-card clickable ${star.rarity} ${star.variant || ''}`}
+        onClick={() => navigate(`/star/${star.cartId}`)}
       >
         {RARITY_LABEL[star.rarity] && (
           <span className={`star-badge ${star.rarity}-badge`}>
@@ -172,7 +173,12 @@ const StarsPage = () => {
           <span className="star-price">{star.price.toLocaleString('ru-RU')} ₽</span>
           <button
             className={`gift-button ${inCart ? 'in-cart' : ''}`}
-            onClick={() => (inCart ? navigate('/cart') : handleGift(star))}
+            onClick={(e) => {
+              /* кнопка не должна открывать страницу звезды */
+              e.stopPropagation();
+              if (inCart) navigate('/cart');
+              else handleGift(star);
+            }}
           >
             {inCart ? 'В корзине' : 'Подарить'}
           </button>

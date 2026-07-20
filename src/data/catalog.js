@@ -64,6 +64,23 @@ const FACES = ['happy', 'joy', 'sleepy', 'wink'];
 const COMMON_DECORS = ['none', 'none', 'sparkles', 'swoosh', 'beads', 'dots'];
 const FANCY_DECORS = ['ring', 'orbit', 'sparkles', 'dots'];
 
+/* Спектральные классы для «паспорта звезды» */
+const SPECTRAL_CLASSES = ['B', 'A', 'F', 'G', 'K', 'M'];
+
+/* Шаблоны историй; {name} и {constellation} подставляются при генерации */
+const STORIES = [
+  'Астрономы заметили {name} случайно, перепроверяя старые снимки созвездия {constellation}. С тех пор она числится в каталогах, но по-настоящему её ещё никто не разглядывал — вы можете стать первым.',
+  'Свет {name} вышел в путь, когда на Земле ещё не было ни одного телескопа. Он летел сквозь созвездие {constellation} всё это время, чтобы однажды попасть в чьи-то глаза. Может быть, в ваши.',
+  '{name} — тихая звезда на окраине созвездия {constellation}. Про такие не пишут в учебниках, зато их удобно дарить: никто не перепутает, чья она.',
+  'В созвездии {constellation} сотни огней, но {name} держится чуть в стороне, как будто ждёт, что её позовут по имени. Теперь у неё есть шанс.',
+  'Если найти созвездие {constellation} и вглядеться, {name} мигнёт в ответ — астрономы называют это мерцанием атмосферы, а романтики предпочитают не уточнять.',
+];
+
+const storyFor = (rng, name, constellation) =>
+  pick(rng, STORIES)
+    .replaceAll('{name}', name)
+    .replaceAll('{constellation}', constellation);
+
 /* ===== Небесный Венец: только два главных светила ===== */
 const CROWN_STARS = [
   {
@@ -77,6 +94,11 @@ const CROWN_STARS = [
     desc: 'единственная звезда нашей системы — греет всё живое',
     metaText: '8 световых минут от вас',
     price: 49990,
+    objectType: 'звезда, жёлтый карлик',
+    spectral: 'G2V',
+    magnitude: '−26,7',
+    story:
+      'Солнце — звезда, вокруг которой крутится буквально всё: планеты, приливы, отпуска и хорошее настроение. Подарить его — самый смелый жест в этом каталоге: больше на небе дарить уже нечего.',
   },
   {
     cartId: 'star-crown-moon',
@@ -89,23 +111,32 @@ const CROWN_STARS = [
     desc: 'главное светило ночного неба — ведёт счёт приливам и снам',
     metaText: '1,3 световой секунды от вас',
     price: 44990,
+    objectType: 'естественный спутник Земли',
+    spectral: '—',
+    magnitude: '−12,7',
+    story:
+      'Луна — единственное светило, до которого дотягивался человек, и единственное, которое каждый вечер само приходит к окну. Тот случай, когда подарок будут видеть каждую ночь — без телескопа.',
   },
 ];
 
 /* ===== Путеводные: 10 самых известных звёзд мира =====
-   Созвездия и расстояния (в световых годах) — настоящие */
+   Созвездия, расстояния (св. лет), величины и классы — настоящие */
 const GUIDING_STARS = [
-  { name: 'Полярная звезда', constellation: 'Малая Медведица', desc: 'главный ориентир Северного полушария', distance: 433 },
-  { name: 'Сириус', constellation: 'Большой Пёс', desc: 'самая яркая звезда ночного неба', distance: 9 },
-  { name: 'Вега', constellation: 'Лира', desc: 'часть Летнего треугольника', distance: 25 },
-  { name: 'Бетельгейзе', constellation: 'Орион', desc: 'знаменитый красный сверхгигант', distance: 548 },
-  { name: 'Ригель', constellation: 'Орион', desc: 'ярчайшая звезда Ориона', distance: 860 },
-  { name: 'Антарес', constellation: 'Скорпион', desc: 'красный сверхгигант, «сердце Скорпиона»', distance: 554 },
-  { name: 'Альтаир', constellation: 'Орёл', desc: 'вершина Летнего треугольника', distance: 17 },
-  { name: 'Капелла', constellation: 'Возничий', desc: 'ярчайшая звезда Возничего', distance: 43 },
-  { name: 'Арктур', constellation: 'Волопас', desc: 'ярчайшая звезда северного неба', distance: 37 },
-  { name: 'Канопус', constellation: 'Киль', desc: 'вторая по яркости звезда неба', distance: 310 },
+  { name: 'Полярная звезда', constellation: 'Малая Медведица', desc: 'главный ориентир Северного полушария', distance: 433, magnitude: '1,98', spectral: 'F7Ib' },
+  { name: 'Сириус', constellation: 'Большой Пёс', desc: 'самая яркая звезда ночного неба', distance: 9, magnitude: '−1,46', spectral: 'A1V' },
+  { name: 'Вега', constellation: 'Лира', desc: 'часть Летнего треугольника', distance: 25, magnitude: '0,03', spectral: 'A0V' },
+  { name: 'Бетельгейзе', constellation: 'Орион', desc: 'знаменитый красный сверхгигант', distance: 548, magnitude: '0,50', spectral: 'M1Ia' },
+  { name: 'Ригель', constellation: 'Орион', desc: 'ярчайшая звезда Ориона', distance: 860, magnitude: '0,13', spectral: 'B8Ia' },
+  { name: 'Антарес', constellation: 'Скорпион', desc: 'красный сверхгигант, «сердце Скорпиона»', distance: 554, magnitude: '1,06', spectral: 'M1Iab' },
+  { name: 'Альтаир', constellation: 'Орёл', desc: 'вершина Летнего треугольника', distance: 17, magnitude: '0,76', spectral: 'A7V' },
+  { name: 'Капелла', constellation: 'Возничий', desc: 'ярчайшая звезда Возничего', distance: 43, magnitude: '0,08', spectral: 'G8III' },
+  { name: 'Арктур', constellation: 'Волопас', desc: 'ярчайшая звезда северного неба', distance: 37, magnitude: '−0,05', spectral: 'K1.5III' },
+  { name: 'Канопус', constellation: 'Киль', desc: 'вторая по яркости звезда неба', distance: 310, magnitude: '−0,74', spectral: 'A9II' },
 ];
+
+/* Общая история для путеводных — они говорят сами за себя */
+const guidingStory = (data) =>
+  `${data.name} — ${data.desc}. Её находили на небе задолго до появления карт: по таким звёздам веками сверяли путь моряки и путники. Подарить её — значит подарить ориентир.`;
 
 /* Размеры генерируемых секций (венец и путеводные заданы вручную) */
 const SECTION_SIZES = { constellation: 28, distant: 60, nameless: 100 };
@@ -129,21 +160,28 @@ const generateStar = (seed, rarity) => {
   const isFancy = RARITIES[rarity].order >= RARITIES.constellation.order;
   const decor = isFancy ? pick(rng, FANCY_DECORS) : pick(rng, COMMON_DECORS);
 
+  const name = generatedName(seed, RARITIES[rarity].order * 5);
+  /* созвёздным — своё созвездие без повторов внутри секции */
+  const constellation =
+    rarity === 'constellation'
+      ? CONSTELLATIONS[seed % CONSTELLATIONS.length]
+      : pick(rng, CONSTELLATIONS);
+
   return {
     /* cartId — стабильный ключ для корзины */
     cartId: `star-${rarity}-${seed}`,
     rarity,
     face,
     decor,
-    name: generatedName(seed, RARITIES[rarity].order * 5),
-    /* созвёздным — своё созвездие без повторов внутри секции */
-    constellation:
-      rarity === 'constellation'
-        ? CONSTELLATIONS[seed % CONSTELLATIONS.length]
-        : pick(rng, CONSTELLATIONS),
+    name,
+    constellation,
     desc: pick(rng, DESCRIPTIONS),
     distance: Math.floor(rng() * 900 + 40),
     price: rollPrice(rarity, rng),
+    /* «паспорт» для страницы звезды */
+    magnitude: (rng() * 5 + 1.5).toFixed(2).replace('.', ','),
+    spectral: `${pick(rng, SPECTRAL_CLASSES)}${Math.floor(rng() * 10)}`,
+    story: storyFor(rng, name, constellation),
   };
 };
 
@@ -156,6 +194,7 @@ const buildGuidingStar = (data, i) => {
     face: pick(rng, FACES),
     decor: pick(rng, FANCY_DECORS),
     price: rollPrice('guiding', rng),
+    story: guidingStory(data),
     ...data,
   };
 };
@@ -182,8 +221,37 @@ const buildCatalog = () =>
     stars: buildSection(rarityId),
   }));
 
+/* Каталог детерминированный — собираем один раз и переиспользуем */
+let catalogCache = null;
+const getCatalog = () => {
+  if (!catalogCache) catalogCache = buildCatalog();
+  return catalogCache;
+};
+
 /**
  * «Запрос» каталога. Сейчас — мгновенный мок, интерфейс уже асинхронный,
  * чтобы страницы не пришлось переписывать при переходе на реальное API.
  */
-export const fetchCatalog = async () => buildCatalog();
+export const fetchCatalog = async () => getCatalog();
+
+/**
+ * «Запрос» одной звезды по id + похожие звёзды той же редкости.
+ * Возвращает { star, similar } или null, если звезда не найдена.
+ * TODO(backend): заменить на fetch(`/api/stars/${cartId}`)
+ */
+export const fetchStar = async (cartId) => {
+  const section = getCatalog().find((sec) =>
+    sec.stars.some((s) => s.cartId === cartId)
+  );
+  if (!section) return null;
+
+  const star = section.stars.find((s) => s.cartId === cartId);
+  const pool = section.stars.filter((s) => s.cartId !== cartId);
+  /* три «соседа по небу» — детерминированно, вокруг позиции звезды */
+  const idx = section.stars.indexOf(star);
+  const similar = Array.from(
+    { length: Math.min(3, pool.length) },
+    (_, i) => pool[(idx + i) % pool.length]
+  );
+  return { star, similar };
+};

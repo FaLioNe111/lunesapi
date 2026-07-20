@@ -1,0 +1,198 @@
+/* ===== Страница звезды =====
+   Наследует небо, карточки и кнопки из Stars.css — единый стиль */
+
+.star-page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 7rem 1.5rem 4rem;
+  flex: 1;
+}
+
+.star-page-back {
+  display: inline-block;
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  text-decoration: none;
+  margin-bottom: 1.6rem;
+  transition: color 0.25s ease;
+}
+
+.star-page-back:hover {
+  color: #f3d488;
+}
+
+/* ===== Раскладка: визуал + информация ===== */
+.star-page-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 2.2rem;
+  align-items: start;
+}
+
+/* Крупная карточка-визуал (стили редкости приходят из Stars.css) */
+.star-hero {
+  padding: 2.2rem 1.5rem;
+  position: sticky;
+  top: 92px;
+}
+
+.star-hero-visual {
+  width: 216px;
+  height: 216px;
+}
+
+/* ===== Информация ===== */
+.star-page-name {
+  font-family: 'Neucha', cursive;
+  color: #fdf3d7;
+  font-size: 2.6rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 0 26px rgba(243, 212, 136, 0.25);
+}
+
+.star-page-place {
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
+  font-size: 1.1rem;
+  margin-top: 0.2rem;
+}
+
+.star-page-desc {
+  color: #aab6e0;
+  font-style: italic;
+  font-size: 1.05rem;
+  margin: 0.9rem 0 0;
+}
+
+.star-page-story {
+  color: #cdd6f4;
+  font-family: 'Neucha', cursive;
+  font-size: 1.08rem;
+  line-height: 1.65;
+  margin: 1.1rem 0 0;
+  padding: 1rem 1.2rem;
+  background: rgba(16, 27, 60, 0.6);
+  border-left: 2px solid rgba(243, 212, 136, 0.45);
+  border-radius: 0 12px 12px 0;
+}
+
+/* ===== Паспорт звезды ===== */
+.star-passport {
+  margin: 1.5rem 0 0;
+  border: 1px solid rgba(150, 170, 255, 0.14);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.star-passport-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 1.1rem;
+  background: rgba(16, 27, 60, 0.55);
+}
+
+.star-passport-row:nth-child(even) {
+  background: rgba(16, 27, 60, 0.8);
+}
+
+.star-passport-row dt {
+  color: #7488c4;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+}
+
+.star-passport-row dd {
+  color: #e6ebff;
+  font-family: 'Neucha', cursive;
+  font-size: 0.98rem;
+  margin: 0;
+  text-align: right;
+}
+
+/* ===== Покупка ===== */
+.star-page-buy {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-top: 1.6rem;
+}
+
+.star-page-price {
+  color: #f3d488;
+  font-family: 'Neucha', cursive;
+  font-size: 1.9rem;
+  font-weight: 700;
+}
+
+.star-page-buy .gift-button {
+  padding: 0.7rem 1.8rem;
+  font-size: 1.08rem;
+}
+
+.star-page-note {
+  color: #7488c4;
+  font-family: 'Neucha', cursive;
+  font-size: 0.92rem;
+  margin: 0.8rem 0 0;
+}
+
+/* ===== Соседи по небу ===== */
+.star-neighbours {
+  margin-top: 3rem;
+}
+
+.star-neighbours-title {
+  font-family: 'Neucha', cursive;
+  color: #fdf3d7;
+  font-size: 1.5rem;
+  margin: 0 0 1.1rem;
+}
+
+.star-neighbours-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.2rem;
+}
+
+.neighbour-card {
+  text-decoration: none;
+  cursor: pointer;
+  padding: 1.1rem 1rem;
+}
+
+.neighbour-card .star-visual {
+  width: 92px;
+  height: 92px;
+  margin-bottom: 0.5rem;
+}
+
+.neighbour-card .star-price {
+  margin-top: 0.5rem;
+}
+
+/* ===== Адаптивность ===== */
+@media (max-width: 860px) {
+  .star-page {
+    padding: 5.5rem 1rem 3rem;
+  }
+
+  .star-page-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .star-hero {
+    position: static;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .star-page-name {
+    font-size: 2rem;
+  }
+}

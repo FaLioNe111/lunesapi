@@ -4,6 +4,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import StarAvatar from '../components/StarAvatar';
 import { RARITIES, normalizeRarity } from '../data/rarities';
+import { getCurrentUser, updateProfile, logout } from '../data/auth';
+import { fetchOrders } from '../data/orders';
 import '../style/index.css';
 import '../style/Profile.css';
 import starryVideo from '../assets/stars.mp4';
@@ -72,10 +74,9 @@ const ProfilePage = () => {
   const [settingsSaved, setSettingsSaved] = useState(false);
 
   useEffect(() => {
-    // Загружаем данные пользователя из localStorage
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      const parsed = JSON.parse(savedUser);
+    // Загружаем данные пользователя через мок-API авторизации
+    const parsed = getCurrentUser();
+    if (parsed) {
       setUserData(parsed);
       setSettingsForm({
         name: parsed.name || '',
@@ -88,11 +89,7 @@ const ProfilePage = () => {
     }
 
     // История заказов, оформленных через корзину
-    try {
-      setOrders(JSON.parse(localStorage.getItem('orders') || '[]'));
-    } catch {
-      setOrders([]);
-    }
+    fetchOrders().then(setOrders);
   }, [navigate]);
 
   /* Полный список звёзд: демо + купленные через корзину */
@@ -142,17 +139,16 @@ const ProfilePage = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     // Удаляем данные пользователя
-    localStorage.removeItem('currentUser');
+    await logout();
     navigate('/login');
   };
 
-  /* Сохранение настроек профиля обратно в localStorage */
-  const handleSaveSettings = (e) => {
+  /* Сохранение настроек профиля через мок-API */
+  const handleSaveSettings = async (e) => {
     e.preventDefault();
-    const updated = { ...userData, ...settingsForm };
-    localStorage.setItem('currentUser', JSON.stringify(updated));
+    const updated = await updateProfile(settingsForm);
     setUserData(updated);
     setSettingsSaved(true);
     setTimeout(() => setSettingsSaved(false), 2500);

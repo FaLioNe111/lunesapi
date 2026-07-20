@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { register } from '../data/auth';
 import '../style/index.css';
 import '../style/Auth.css';
 import starryVideo from '../assets/stars.mp4';
@@ -21,18 +22,12 @@ const RegisterPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Сохраняем данные пользователя в localStorage
-    const userData = {
-      name: formData.name,
-      username: formData.username,
-      email: `${formData.username}@example.com`
-    };
-    
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    
+
+    // Регистрация через мок-API (TODO(backend): создание аккаунта на сервере)
+    await register(formData);
+
     // Переход в личный кабинет
     navigate('/profile');
   };

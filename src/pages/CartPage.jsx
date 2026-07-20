@@ -4,6 +4,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import StarAvatar from '../components/StarAvatar';
 import { RARITIES } from '../data/rarities';
+import { getCurrentUser } from '../data/auth';
+import { createOrder } from '../data/orders';
 import { useCart } from '../context/CartContext';
 import '../style/index.css';
 import '../style/Stars.css';
@@ -49,23 +51,9 @@ const CartPage = () => {
   const [promoInput, setPromoInput] = useState('');
   const [promo, setPromo] = useState(null);         // { code, discount }
   const [promoError, setPromoError] = useState(null);
-  const [senderName, setSenderName] = useState(() => {
-    /* подставляем имя из профиля, если пользователь залогинен */
-    try {
-      const saved = JSON.parse(localStorage.getItem('currentUser') || 'null');
-      return saved?.name || '';
-    } catch {
-      return '';
-    }
-  });
-  const [senderEmail, setSenderEmail] = useState(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('currentUser') || 'null');
-      return saved?.email || '';
-    } catch {
-      return '';
-    }
-  });
+  /* подставляем имя и почту из профиля, если пользователь залогинен */
+  const [senderName, setSenderName] = useState(() => getCurrentUser()?.name || '');
+  const [senderEmail, setSenderEmail] = useState(() => getCurrentUser()?.email || '');
   const [giftMessage, setGiftMessage] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('sbp');
   const [paying, setPaying] = useState(false);       // имитация переноса на оплату
@@ -113,30 +101,24 @@ const CartPage = () => {
       const num = `ZV-${Date.now().toString().slice(-6)}`;
       setOrderNumber(num);
 
-      /* сохраняем заказ в localStorage — его увидит личный кабинет */
-      try {
-        const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-        orders.unshift({
-          number: num,
-          date: new Date().toLocaleDateString('ru-RU'),
-          items: items.map((it) => ({
-            cartId: it.cartId,
-            name: it.name,
-            rarity: it.rarity,
-            constellation: it.constellation,
-            face: it.face,
-            decor: it.decor,
-            price: it.price,
-            giftedTo: it.giftedTo || senderName,
-          })),
-          total: finalPrice,
-          paymentMethod,
-          status: 'Оплачен',
-        });
-        localStorage.setItem('orders', JSON.stringify(orders));
-      } catch {
-        /* хранилище недоступно — заказ просто не сохранится в истории */
-      }
+      /* сохраняем заказ через мок-API — его увидит личный кабинет */
+      createOrder({
+        number: num,
+        date: new Date().toLocaleDateString('ru-RU'),
+        items: items.map((it) => ({
+          cartId: it.cartId,
+          name: it.name,
+          rarity: it.rarity,
+          constellation: it.constellation,
+          face: it.face,
+          decor: it.decor,
+          price: it.price,
+          giftedTo: it.giftedTo || senderName,
+        })),
+        total: finalPrice,
+        paymentMethod,
+        status: 'Оплачен',
+      });
 
       clearCart();
       setPaying(false);

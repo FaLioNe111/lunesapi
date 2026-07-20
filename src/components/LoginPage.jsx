@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { login } from '../data/auth';
 import '../style/index.css';
 import '../style/Auth.css';
 import starryVideo from '../assets/stars.mp4';
@@ -20,18 +21,12 @@ const LoginPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Сохраняем данные пользователя в localStorage
-    const userData = {
-      username: formData.username,
-      name: formData.username, // Если нет отдельного поля name, используем username
-      email: `${formData.username}@example.com`
-    };
-    
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    
+
+    // Вход через мок-API (TODO(backend): реальная проверка пароля на сервере)
+    await login(formData);
+
     // Переход в личный кабинет
     navigate('/profile');
   };

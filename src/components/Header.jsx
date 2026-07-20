@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { getCurrentUser } from '../data/auth';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -8,12 +9,7 @@ const Header = () => {
   const { count } = useCart();
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('currentUser');
-      setUser(saved ? JSON.parse(saved) : null);
-    } catch {
-      setUser(null);
-    }
+    setUser(getCurrentUser());
   }, []);
 
   return (

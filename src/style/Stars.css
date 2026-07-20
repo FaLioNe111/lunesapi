@@ -440,7 +440,9 @@
   animation: crown-breathe 3.5s ease-in-out infinite;
 }
 
-.sky-card.crown::before {
+/* золотая лента — только для карточек Венца без собственного варианта:
+   у Солнца и Луны ::before занят лучами и полумесяцем */
+.sky-card.crown:not(.sun):not(.moon)::before {
   content: '';
   position: absolute;
   top: 0;

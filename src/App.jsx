@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage';
 import StartPage from './pages/StartPage';
 import StarsPage from './pages/StarsPage';
 import StarPage from './pages/StarPage';
+import GiftPage from './pages/GiftPage';
 import CartPage from './pages/CartPage';
 import InfoPage from './pages/InfoPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -22,6 +23,8 @@ function App() {
           <Route path="/start" element={<StartPage />} />
           <Route path="/stars" element={<StarsPage />} />
           <Route path="/star/:cartId" element={<StarPage />} />
+          {/* страница получения подарка — её открывает получатель по ссылке */}
+          <Route path="/gift/:cartId" element={<GiftPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />

@@ -27,42 +27,57 @@ const PROFILE_TABS = [
 ];
 
 // Купленные звёзды (демо-набор — как будто куплены раньше).
-// По новой схеме все знаменитые звёзды — Путеводные
+// cartId совпадают с реальными звёздами каталога, чтобы работали
+// страницы звезды и подарка
 const purchasedStars = [
   {
     id: 1,
+    cartId: 'star-guiding-1',
     name: 'Сириус',
     constellation: 'Большой Пёс',
     rarity: 'guiding',
     face: 'joy',
     decor: 'sparkles',
     giftedTo: 'Анна',
-    link: 'http://localhost:5173/',
+    giftMessage: 'Пусть самая яркая звезда неба светит только тебе',
     purchaseDate: '15.03.2024',
   },
   {
     id: 2,
+    cartId: 'star-guiding-2',
     name: 'Вега',
     constellation: 'Лира',
     rarity: 'guiding',
     face: 'happy',
     decor: 'ring',
     giftedTo: 'Мария',
-    link: 'http://localhost:5173/',
+    giftMessage: 'Теперь у тебя есть своя точка опоры на небе',
     purchaseDate: '22.04.2024',
   },
   {
     id: 3,
+    cartId: 'star-guiding-0',
     name: 'Полярная звезда',
     constellation: 'Малая Медведица',
     rarity: 'guiding',
     face: 'wink',
     decor: 'orbit',
     giftedTo: 'Екатерина',
-    link: 'http://localhost:5173/',
+    giftMessage: 'Чтобы ты всегда находила дорогу домой',
     purchaseDate: '10.05.2024',
   },
 ];
+
+/* Ссылка на праздничную страницу подарка — её и отправляют получателю.
+   TODO(backend): сервер должен выдавать короткий id подарка вместо параметров */
+const makeGiftLink = (cartId, giftedTo, fromName, message) => {
+  const params = new URLSearchParams();
+  if (giftedTo) params.set('to', giftedTo);
+  if (fromName) params.set('from', fromName);
+  if (message) params.set('m', message);
+  const qs = params.toString();
+  return `${window.location.origin}/gift/${cartId}${qs ? `?${qs}` : ''}`;
+};
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -92,11 +107,14 @@ const ProfilePage = () => {
     fetchOrders().then(setOrders);
   }, [navigate]);
 
-  /* Полный список звёзд: демо + купленные через корзину */
+  /* Полный список звёзд: демо + купленные через корзину.
+     У каждой — ссылка на праздничную страницу подарка */
   const allStars = useMemo(() => {
+    const fromName = userData?.name || '';
     const fromOrders = orders.flatMap((order) =>
       order.items.map((it, idx) => ({
         id: `${order.number}-${idx}`,
+        cartId: it.cartId,
         name: it.name,
         constellation: it.constellation,
         /* в старых заказах могли остаться прежние id редкостей */
@@ -104,12 +122,16 @@ const ProfilePage = () => {
         face: it.face,
         decor: it.decor,
         giftedTo: it.giftedTo,
-        link: 'http://localhost:5173/',
+        link: makeGiftLink(it.cartId, it.giftedTo, fromName, order.giftMessage),
         purchaseDate: order.date,
       }))
     );
-    return [...fromOrders, ...purchasedStars];
-  }, [orders]);
+    const demo = purchasedStars.map((s) => ({
+      ...s,
+      link: makeGiftLink(s.cartId, s.giftedTo, fromName, s.giftMessage),
+    }));
+    return [...fromOrders, ...demo];
+  }, [orders, userData]);
 
   /* Статистика для верхней панели кабинета */
   const stats = useMemo(() => {
@@ -283,7 +305,7 @@ const ProfilePage = () => {
                           rel="noopener noreferrer"
                           className="view-star-button"
                         >
-                          Посмотреть вашу звезду на нашей карте
+                          Открыть страницу подарка
                         </a>
                         <button
                           onClick={() => handleCopyLink(star.id, star.link)}
@@ -292,7 +314,7 @@ const ProfilePage = () => {
                           {copiedId === star.id ? (
                             <span className="copied-text">✓ Скопировано</span>
                           ) : (
-                            <span className="copy-text">Копировать ссылку</span>
+                            <span className="copy-text">Копировать ссылку для получателя</span>
                           )}
                         </button>
                       </div>

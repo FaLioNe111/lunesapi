@@ -128,6 +128,8 @@ const CartPage = () => {
         total: finalPrice,
         paymentMethod,
         status: 'Оплачен',
+        /* пожелание попадёт в ссылку на страницу подарка */
+        giftMessage: giftMessage.trim(),
       });
 
       clearCart();
@@ -406,8 +408,9 @@ const CartPage = () => {
             </div>
             <h2 className="cart-success-title">Заказ {orderNumber} оплачен</h2>
             <p className="cart-success-sub">
-              Письмо с подарком уже летит на {senderEmail}. Все подаренные
-              звёзды появились в вашем личном кабинете.
+              Письмо с подарком уже летит на {senderEmail}. Ссылка на
+              праздничную страницу подарка ждёт в личном кабинете —
+              отправьте её получателю.
             </p>
             <div className="cart-form-actions center">
               <button className="cart-primary-button" onClick={() => navigate('/profile')}>

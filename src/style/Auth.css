@@ -143,6 +143,30 @@
 }
 
 /* Переключение формы */
+/* Ошибка валидации формы */
+.auth-error {
+  color: #f08a8a;
+  font-size: 0.92rem;
+  margin: -0.5rem 0 1rem;
+}
+
+/* Успешное действие (письмо восстановления отправлено) */
+.auth-success {
+  color: #4ade80;
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+/* Блок «забыли пароль» */
+.auth-forgot {
+  text-align: center;
+  margin-top: 1.2rem;
+}
+
+.auth-forgot .switch-button {
+  margin-left: 0;
+}
+
 .auth-switch {
   text-align: center;
   margin-top: 2rem;

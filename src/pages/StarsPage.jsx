@@ -32,6 +32,9 @@ const SORT_OPTIONS = [
   { id: 'desc', label: 'Сначала дороже' },
 ];
 
+/* Сколько карточек секции показывать сразу; остальное — по «Показать ещё» */
+const SECTION_PREVIEW = 24;
+
 const matchesPrice = (star, priceFilter) => {
   switch (priceFilter) {
     case 'lt3000':
@@ -55,6 +58,14 @@ const StarsPage = () => {
 
   const [toast, setToast] = useState(null);
   const [gifted, setGifted] = useState(() => 114 + new Date().getHours() * 3);
+
+  /* раскрытие длинных секций: id секции → сколько карточек показывать */
+  const [visibleBySection, setVisibleBySection] = useState({});
+  const showMore = (id) =>
+    setVisibleBySection((v) => ({
+      ...v,
+      [id]: (v[id] || SECTION_PREVIEW) + SECTION_PREVIEW,
+    }));
 
   /* Фильтры живут в URL (?q=…&rarity=…&price=…&sort=…) — ссылкой на
      отфильтрованный каталог можно делиться, «назад» работает ожидаемо */
@@ -300,29 +311,43 @@ const StarsPage = () => {
           </div>
         ) : (
           <>
-            {/* Секции по редкости */}
-            {shownSections.map((sec) => (
-              <section
-                key={sec.id}
-                id={`rarity-${sec.id}`}
-                className="rarity-section"
-              >
-                <div className="rarity-section-head">
-                  <h2 className={`rarity-section-title ${sec.id}`}>
-                    {RARITIES[sec.id].label}
-                  </h2>
-                  <span className="rarity-section-count">{sec.stars.length}</span>
-                  <p className="rarity-section-tagline">
-                    {RARITIES[sec.id].groupTagline}
-                  </p>
-                </div>
-                <div
-                  className={`catalog-grid ${sec.id === 'crown' ? 'crown-grid' : ''}`}
+            {/* Секции по редкости; длинные раскрываются по «Показать ещё» */}
+            {shownSections.map((sec) => {
+              const limit = visibleBySection[sec.id] || SECTION_PREVIEW;
+              const hiddenCount = sec.stars.length - limit;
+              return (
+                <section
+                  key={sec.id}
+                  id={`rarity-${sec.id}`}
+                  className="rarity-section"
                 >
-                  {sec.stars.map((star) => renderStarCard(star))}
-                </div>
-              </section>
-            ))}
+                  <div className="rarity-section-head">
+                    <h2 className={`rarity-section-title ${sec.id}`}>
+                      {RARITIES[sec.id].label}
+                    </h2>
+                    <span className="rarity-section-count">{sec.stars.length}</span>
+                    <p className="rarity-section-tagline">
+                      {RARITIES[sec.id].groupTagline}
+                    </p>
+                  </div>
+                  <div
+                    className={`catalog-grid ${sec.id === 'crown' ? 'crown-grid' : ''}`}
+                  >
+                    {sec.stars.slice(0, limit).map((star) => renderStarCard(star))}
+                  </div>
+                  {hiddenCount > 0 && (
+                    <div className="section-more">
+                      <button
+                        className="catalog-reset-button"
+                        onClick={() => showMore(sec.id)}
+                      >
+                        Показать ещё ({hiddenCount})
+                      </button>
+                    </div>
+                  )}
+                </section>
+              );
+            })}
 
             <div className="catalog-end">
               <div className="catalog-end-line"></div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { login } from '../data/auth';
+import { login, requestPasswordReset } from '../data/auth';
 import '../style/index.css';
 import '../style/Auth.css';
 import starryVideo from '../assets/stars.mp4';
@@ -12,6 +12,9 @@ const LoginPage = () => {
     username: '',
     password: ''
   });
+  const [formError, setFormError] = useState(null);
+  const [forgotMode, setForgotMode] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -24,11 +27,33 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Простая валидация на фронте
+    if (formData.username.trim().length < 3) {
+      setFormError('Логин должен быть не короче 3 символов');
+      return;
+    }
+    if (formData.password.length < 6) {
+      setFormError('Пароль должен быть не короче 6 символов');
+      return;
+    }
+    setFormError(null);
+
     // Вход через мок-API (TODO(backend): реальная проверка пароля на сервере)
     await login(formData);
 
     // Переход в личный кабинет
     navigate('/profile');
+  };
+
+  /* Мок восстановления пароля: «отправляем письмо» на логин-почту */
+  const handleForgot = async () => {
+    if (formData.username.trim().length < 3) {
+      setFormError('Укажите логин — на его почту придёт письмо для восстановления');
+      return;
+    }
+    setFormError(null);
+    await requestPasswordReset(formData.username);
+    setResetSent(true);
   };
 
   return (
@@ -82,10 +107,37 @@ const LoginPage = () => {
                 />
               </div>
 
+              {formError && <p className="auth-error">{formError}</p>}
+
               <button type="submit" className="auth-button">
                 Войти
               </button>
             </form>
+
+            {/* Восстановление пароля (мок) */}
+            <div className="auth-forgot">
+              {resetSent ? (
+                <p className="auth-success">
+                  Письмо для восстановления отправлено — проверьте почту
+                </p>
+              ) : forgotMode ? (
+                <button
+                  type="button"
+                  className="switch-button"
+                  onClick={handleForgot}
+                >
+                  Отправить письмо для восстановления
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="switch-button"
+                  onClick={() => setForgotMode(true)}
+                >
+                  Забыли пароль?
+                </button>
+              )}
+            </div>
 
             <div className="auth-switch">
               <p>

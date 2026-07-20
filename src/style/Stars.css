@@ -325,6 +325,16 @@
   max-width: 720px;
 }
 
+/* Кнопка раскрытия длинной секции */
+.section-more {
+  text-align: center;
+  margin-top: 1.3rem;
+}
+
+.section-more .catalog-reset-button {
+  margin-top: 0;
+}
+
 /* Загрузка каталога из «API» */
 .catalog-loading {
   display: flex;

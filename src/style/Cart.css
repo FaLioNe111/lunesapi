@@ -465,6 +465,19 @@
   margin: 1.1rem 0 0;
 }
 
+/* Ошибка оплаты */
+.cart-pay-error {
+  margin-top: 1.1rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(240, 138, 138, 0.5);
+  background: rgba(240, 138, 138, 0.1);
+  color: #f5b3b3;
+  font-family: 'Neucha', cursive;
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
 .cart-paying {
   display: flex;
   flex-direction: column;

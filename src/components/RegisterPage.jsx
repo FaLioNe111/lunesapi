@@ -13,6 +13,7 @@ const RegisterPage = () => {
     username: '',
     password: ''
   });
+  const [formError, setFormError] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -24,6 +25,21 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Простая валидация на фронте
+    if (formData.name.trim().length < 2) {
+      setFormError('Имя должно быть не короче 2 символов');
+      return;
+    }
+    if (formData.username.trim().length < 3) {
+      setFormError('Логин должен быть не короче 3 символов');
+      return;
+    }
+    if (formData.password.length < 6) {
+      setFormError('Пароль должен быть не короче 6 символов');
+      return;
+    }
+    setFormError(null);
 
     // Регистрация через мок-API (TODO(backend): создание аккаунта на сервере)
     await register(formData);
@@ -95,6 +111,8 @@ const RegisterPage = () => {
                   required
                 />
               </div>
+
+              {formError && <p className="auth-error">{formError}</p>}
 
               <button type="submit" className="auth-button">
                 Зарегистрироваться

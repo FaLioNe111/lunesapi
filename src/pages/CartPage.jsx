@@ -57,6 +57,7 @@ const CartPage = () => {
   const [giftMessage, setGiftMessage] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('sbp');
   const [paying, setPaying] = useState(false);       // имитация переноса на оплату
+  const [payError, setPayError] = useState(false);   // «банк отклонил операцию»
   const [orderNumber, setOrderNumber] = useState(null);
   const [formError, setFormError] = useState(null);
 
@@ -97,7 +98,16 @@ const CartPage = () => {
      TODO(backend): здесь должен быть redirect на платёжный шлюз */
   const handlePay = () => {
     setPaying(true);
+    setPayError(false);
     setTimeout(() => {
+      /* демо: изредка платёж «не проходит», чтобы показать сценарий ошибки.
+         TODO(backend): здесь будет реальный ответ платёжного шлюза */
+      if (Math.random() < 0.15) {
+        setPaying(false);
+        setPayError(true);
+        return;
+      }
+
       const num = `ZV-${Date.now().toString().slice(-6)}`;
       setOrderNumber(num);
 
@@ -355,6 +365,13 @@ const CartPage = () => {
                 оплаты. Данные карты вводятся только на стороне платёжной
                 системы.
               </p>
+
+              {payError && (
+                <div className="cart-pay-error">
+                  Оплата не прошла — банк отклонил операцию. Деньги не списаны:
+                  попробуйте ещё раз или выберите другой способ оплаты.
+                </div>
+              )}
 
               {paying ? (
                 <div className="cart-paying">

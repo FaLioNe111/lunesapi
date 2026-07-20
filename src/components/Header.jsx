@@ -15,7 +15,12 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header-content">
-        <div className="header-item header-logo" onClick={() => navigate('/')}>
+        {/* кнопки вместо div — работает навигация с клавиатуры */}
+        <button
+          type="button"
+          className="header-item header-logo"
+          onClick={() => navigate('/')}
+        >
           <svg width="24" height="24" viewBox="0 0 120 120" aria-hidden="true">
             <polygon
               points="60,24 71.2,46.6 96.1,50.3 78.1,67.9 82.3,92.7 60,81 37.7,92.7 41.9,67.9 23.9,50.3 48.8,46.6"
@@ -26,25 +31,34 @@ const Header = () => {
             />
           </svg>
           <span>Звездочёт</span>
-        </div>
+        </button>
 
         <nav className="header-nav">
-          <div className="header-item" onClick={() => navigate('/stars')}>
+          <button type="button" className="header-item" onClick={() => navigate('/stars')}>
             Звезды
-          </div>
+          </button>
           {/* Корзина со счётчиком выбранных звёзд */}
-          <div className="header-item header-cart" onClick={() => navigate('/cart')}>
+          <button
+            type="button"
+            className="header-item header-cart"
+            onClick={() => navigate('/cart')}
+            aria-label={count > 0 ? `Корзина, ${count} звёзд` : 'Корзина'}
+          >
             Корзина
             {count > 0 && <span className="header-cart-count">{count}</span>}
-          </div>
+          </button>
           {user ? (
-            <div className="header-item header-user" onClick={() => navigate('/profile')}>
+            <button
+              type="button"
+              className="header-item header-user"
+              onClick={() => navigate('/profile')}
+            >
               {user.username || user.name}
-            </div>
+            </button>
           ) : (
-            <div className="header-item" onClick={() => navigate('/login')}>
+            <button type="button" className="header-item" onClick={() => navigate('/login')}>
               Вход
-            </div>
+            </button>
           )}
         </nav>
       </div>

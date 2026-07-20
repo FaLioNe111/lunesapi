@@ -49,7 +49,6 @@ const CartPage = () => {
   const [promoInput, setPromoInput] = useState('');
   const [promo, setPromo] = useState(null);         // { code, discount }
   const [promoError, setPromoError] = useState(null);
-  const [certificate, setCertificate] = useState(true); // именной сертификат (бесплатно)
   const [senderName, setSenderName] = useState(() => {
     /* подставляем имя из профиля, если пользователь залогинен */
     try {
@@ -94,11 +93,11 @@ const CartPage = () => {
   /* Валидация шага оформления */
   const goToPayment = () => {
     if (!senderName.trim()) {
-      setFormError('Укажите ваше имя — оно попадёт в сертификат');
+      setFormError('Укажите ваше имя — оно будет в письме с подарком');
       return;
     }
     if (!senderEmail.trim() || !senderEmail.includes('@')) {
-      setFormError('Нужен корректный e-mail — на него придёт сертификат');
+      setFormError('Нужен корректный e-mail — на него придёт письмо с подарком');
       return;
     }
     setFormError(null);
@@ -162,8 +161,8 @@ const CartPage = () => {
           </div>
         )}
         <div className="cart-summary-row">
-          <span>Именной сертификат</span>
-          <span>{certificate ? 'бесплатно' : '—'}</span>
+          <span>Письмо с подарком</span>
+          <span>бесплатно</span>
         </div>
         <div className="cart-summary-total">
           <span>Итого</span>
@@ -171,7 +170,7 @@ const CartPage = () => {
         </div>
       </aside>
     ),
-    [items.length, totalPrice, promo, discount, certificate, finalPrice]
+    [items.length, totalPrice, promo, discount, finalPrice]
   );
 
   return (
@@ -239,7 +238,7 @@ const CartPage = () => {
                       <input
                         className="cart-item-recipient"
                         type="text"
-                        placeholder="Кому дарите? (имя на сертификате)"
+                        placeholder="Кому дарите? (имя получателя)"
                         value={it.giftedTo}
                         onChange={(e) => updateItem(it.cartId, { giftedTo: e.target.value })}
                       />
@@ -302,7 +301,7 @@ const CartPage = () => {
         {step === 'checkout' && (
           <div className="cart-layout">
             <div className="cart-form">
-              <h3 className="cart-form-title">Данные для сертификата</h3>
+              <h3 className="cart-form-title">Данные для подарка</h3>
 
               <label className="cart-field">
                 <span className="cart-field-label">Ваше имя</span>
@@ -315,7 +314,7 @@ const CartPage = () => {
               </label>
 
               <label className="cart-field">
-                <span className="cart-field-label">E-mail для сертификата</span>
+                <span className="cart-field-label">E-mail для письма с подарком</span>
                 <input
                   type="email"
                   value={senderEmail}
@@ -325,22 +324,13 @@ const CartPage = () => {
               </label>
 
               <label className="cart-field">
-                <span className="cart-field-label">Пожелание на сертификате (необязательно)</span>
+                <span className="cart-field-label">Пожелание к подарку (необязательно)</span>
                 <textarea
                   rows="3"
                   value={giftMessage}
                   onChange={(e) => setGiftMessage(e.target.value)}
                   placeholder="Пусть эта звезда светит только тебе…"
                 />
-              </label>
-
-              <label className="cart-checkbox">
-                <input
-                  type="checkbox"
-                  checked={certificate}
-                  onChange={(e) => setCertificate(e.target.checked)}
-                />
-                <span>Добавить именной сертификат в PDF (бесплатно)</span>
               </label>
 
               {formError && <p className="cart-error">{formError}</p>}
@@ -417,8 +407,8 @@ const CartPage = () => {
             </div>
             <h2 className="cart-success-title">Заказ {orderNumber} оплачен</h2>
             <p className="cart-success-sub">
-              Сертификат уже летит на {senderEmail}. Все подаренные звёзды
-              появились в вашем личном кабинете.
+              Письмо с подарком уже летит на {senderEmail}. Все подаренные
+              звёзды появились в вашем личном кабинете.
             </p>
             <div className="cart-form-actions center">
               <button className="cart-primary-button" onClick={() => navigate('/profile')}>

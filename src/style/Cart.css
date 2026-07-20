@@ -403,23 +403,6 @@
   border-color: rgba(243, 212, 136, 0.55);
 }
 
-.cart-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  color: #aab6e0;
-  font-family: 'Neucha', cursive;
-  font-size: 0.98rem;
-  cursor: pointer;
-  margin: 0.4rem 0 0.6rem;
-}
-
-.cart-checkbox input {
-  accent-color: #e0b264;
-  width: 17px;
-  height: 17px;
-}
-
 .cart-form-actions {
   display: flex;
   gap: 0.8rem;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import StarAvatar from '../components/StarAvatar';
@@ -56,11 +56,21 @@ const StarsPage = () => {
   const [toast, setToast] = useState(null);
   const [gifted, setGifted] = useState(() => 114 + new Date().getHours() * 3);
 
-  /* состояние фильтров поиска */
-  const [search, setSearch] = useState('');
-  const [rarityFilter, setRarityFilter] = useState('all');
-  const [priceFilter, setPriceFilter] = useState('all');
-  const [sortOrder, setSortOrder] = useState('default');
+  /* Фильтры живут в URL (?q=…&rarity=…&price=…&sort=…) — ссылкой на
+     отфильтрованный каталог можно делиться, «назад» работает ожидаемо */
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get('q') || '';
+  const rarityFilter = searchParams.get('rarity') || 'all';
+  const priceFilter = searchParams.get('price') || 'all';
+  const sortOrder = searchParams.get('sort') || 'default';
+
+  /* значение по умолчанию из URL убираем, чтобы адрес оставался чистым */
+  const setFilterParam = (key, value, defaultValue) => {
+    const next = new URLSearchParams(searchParams);
+    if (!value || value === defaultValue) next.delete(key);
+    else next.set(key, value);
+    setSearchParams(next, { replace: true });
+  };
 
   const toastTimer = useRef(null);
 
@@ -71,10 +81,7 @@ const StarsPage = () => {
     sortOrder !== 'default';
 
   const resetFilters = () => {
-    setSearch('');
-    setRarityFilter('all');
-    setPriceFilter('all');
-    setSortOrder('default');
+    setSearchParams({}, { replace: true });
   };
 
   /* Применение фильтров к каталогу; пустые секции скрываются */
@@ -218,12 +225,12 @@ const StarsPage = () => {
             type="search"
             placeholder="Поиск по имени или созвездию…"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => setFilterParam('q', e.target.value, '')}
           />
           <select
             className="catalog-select"
             value={priceFilter}
-            onChange={(e) => setPriceFilter(e.target.value)}
+            onChange={(e) => setFilterParam('price', e.target.value, 'all')}
           >
             {PRICE_FILTERS.map((p) => (
               <option key={p.id} value={p.id}>{p.label}</option>
@@ -232,7 +239,7 @@ const StarsPage = () => {
           <select
             className="catalog-select"
             value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
+            onChange={(e) => setFilterParam('sort', e.target.value, 'default')}
           >
             {SORT_OPTIONS.map((s) => (
               <option key={s.id} value={s.id}>{s.label}</option>
@@ -244,7 +251,7 @@ const StarsPage = () => {
         <div className="catalog-filters">
           <button
             className={`filter-chip ${rarityFilter === 'all' ? 'active' : ''}`}
-            onClick={() => setRarityFilter('all')}
+            onClick={() => setFilterParam('rarity', 'all', 'all')}
           >
             Все
           </button>
@@ -254,7 +261,7 @@ const StarsPage = () => {
               <button
                 key={r.id}
                 className={`filter-chip ${rarityFilter === r.id ? 'active' : ''}`}
-                onClick={() => setRarityFilter(r.id)}
+                onClick={() => setFilterParam('rarity', r.id, 'all')}
               >
                 {r.label}
               </button>

@@ -41,6 +41,7 @@ const purchasedStars = [
     face: 'joy',
     decor: 'sparkles',
     color: 'silver',
+    image: 'guiding-2',
     giftedTo: 'Анна',
     giftMessage: 'Пусть самая яркая звезда неба светит только тебе',
     purchaseDate: '15.03.2024',
@@ -54,6 +55,7 @@ const purchasedStars = [
     face: 'happy',
     decor: 'ring',
     color: 'blue',
+    image: 'guiding-3',
     giftedTo: 'Мария',
     giftMessage: 'Теперь у тебя есть своя точка опоры на небе',
     purchaseDate: '22.04.2024',
@@ -67,6 +69,7 @@ const purchasedStars = [
     face: 'wink',
     decor: 'orbit',
     color: 'gold',
+    image: 'guiding-1',
     giftedTo: 'Екатерина',
     giftMessage: 'Чтобы ты всегда находила дорогу домой',
     purchaseDate: '10.05.2024',
@@ -147,6 +150,7 @@ const ProfilePage = () => {
         decor: it.decor,
         color: it.color,
         variant: it.variant,
+        image: it.image,
         giftedTo: it.giftedTo,
         link: makeGiftLink(it.cartId, it.giftedTo, fromName, order.giftMessage),
         purchaseDate: order.date,
@@ -310,6 +314,7 @@ const ProfilePage = () => {
                             size={56}
                             color={star.color}
                             variant={star.variant}
+                            image={star.image}
                           />
                           <div>
                             <h3 className="star-name">{star.name}</h3>

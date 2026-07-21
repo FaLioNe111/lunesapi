@@ -1,9 +1,11 @@
 import React from 'react';
+import { starImage } from '../data/starImages';
 
 /**
- * Милая звезда в стиле референса: пухлая пятиконечная звезда
- * с мордочкой и украшениями вокруг.
+ * Аватар звезды.
  *
+ * image:   ключ тайла из src/assets/stars (нарезка референсов 1-в-1) —
+ *          если картинка есть, показываем её; SVG ниже остаётся запаской.
  * face:    happy | joy | sleepy | wink
  * decor:   none | sparkles | ring | orbit | dots | swoosh | beads
  * color:   ключ палитры (gold, pink, purple, green, orange, cyan, blue, lilac, red, silver)
@@ -135,8 +137,24 @@ const MoonBody = ({ gid, face }) => (
   </g>
 );
 
-const StarAvatar = ({ face = 'happy', decor = 'none', size = 120, color = 'gold', variant = null }) => {
+const StarAvatar = ({ face = 'happy', decor = 'none', size = 120, color = 'gold', variant = null, image = null }) => {
   const gid = React.useId();
+
+  /* если для звезды есть готовый тайл с референса — показываем его */
+  const imageUrl = starImage(image);
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        width={size}
+        height={size}
+        style={{ objectFit: 'contain', display: 'block' }}
+        alt=""
+        draggable={false}
+        loading="lazy"
+      />
+    );
+  }
   const palette = variant === 'moon' ? STAR_COLORS.silver : getPalette(color);
   const LINE = palette.line;
 

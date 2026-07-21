@@ -98,6 +98,7 @@ const CROWN_STARS = [
     system: 'Солнечная система',
     desc: 'единственная звезда нашей системы — греет всё живое',
     metaText: '8 световых минут от вас',
+    image: 'sun-1',
     /* Солнце и Луна не продаются — только из рулетки */
     dropOnly: true,
     objectType: 'звезда, жёлтый карлик',
@@ -116,6 +117,7 @@ const CROWN_STARS = [
     system: 'Солнечная система',
     desc: 'главное светило ночного неба — ведёт счёт приливам и снам',
     metaText: '1,3 световой секунды от вас',
+    image: 'moon-1',
     /* Солнце и Луна не продаются — только из рулетки */
     dropOnly: true,
     objectType: 'естественный спутник Земли',
@@ -183,6 +185,9 @@ const generateStar = (seed, rarity) => {
     name,
     constellation,
     color: pick(rng, STAR_PALETTE),
+    /* картинки: у созвёздных 1:1 с листом (28 штук), у остальных
+       секций те же тайлы по кругу со сдвигом, чтобы соседи не совпадали */
+    image: `star-${((seed + RARITIES[rarity].order * 9) % 28) + 1}`,
     desc: pick(rng, DESCRIPTIONS),
     distance: Math.floor(rng() * 900 + 40),
     price: rollPrice(rarity),
@@ -202,6 +207,8 @@ const buildGuidingStar = (data, i) => {
     face: pick(rng, FACES),
     decor: pick(rng, FANCY_DECORS),
     price: rollPrice('guiding'),
+    /* лист путеводных нарисован в том же порядке, что и справочник */
+    image: `guiding-${i + 1}`,
     story: guidingStory(data),
     ...data,
   };

@@ -124,6 +124,7 @@ const CartPage = () => {
           decor: it.decor,
           color: it.color,
           variant: it.variant,
+          image: it.image,
           price: it.price,
           giftedTo: it.giftedTo || senderName,
         })),
@@ -219,6 +220,7 @@ const CartPage = () => {
                         size={84}
                         color={it.color}
                         variant={it.variant}
+                        image={it.image}
                       />
                     </div>
                     <div className="cart-item-info">

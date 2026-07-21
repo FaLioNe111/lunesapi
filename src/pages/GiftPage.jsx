@@ -151,6 +151,7 @@ const GiftPage = () => {
                   size={150}
                   color={star.color}
                   variant={star.variant}
+                  image={star.image}
                 />
               </div>
               <h2 className="star-name">{star.name}</h2>

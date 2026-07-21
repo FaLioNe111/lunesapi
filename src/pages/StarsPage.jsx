@@ -159,6 +159,7 @@ const StarsPage = () => {
             size={126}
             color={star.color}
             variant={star.variant}
+            image={star.image}
           />
         </div>
         <h3 className="star-name">{star.name}</h3>

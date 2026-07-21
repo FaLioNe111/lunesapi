@@ -114,6 +114,7 @@ const StarPage = () => {
                     size={210}
                     color={star.color}
                     variant={star.variant}
+                    image={star.image}
                   />
                 </div>
                 <div className="star-meta">
@@ -193,6 +194,7 @@ const StarPage = () => {
                           size={90}
                           color={s.color}
                           variant={s.variant}
+                          image={s.image}
                         />
                       </div>
                       <h3 className="star-name">{s.name}</h3>

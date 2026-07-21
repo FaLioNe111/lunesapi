@@ -25,14 +25,24 @@ const mulberry32 = (a) => () => {
 
 const pick = (rng, arr) => arr[Math.floor(rng() * arr.length)];
 
-/* ===== Словари генерации ===== */
-const NAME_START = [
-  'Лю', 'Аэ', 'Сти', 'Ми', 'Но', 'Вель', 'Эли', 'Ора',
-  'Юна', 'Кае', 'Сель', 'Тэя', 'Ари', 'Зо', 'Иль', 'Нэ',
+/* ===== Имена звёзд — 1-в-1 с листов-референсов ===== */
+
+/* Созвёздные: 28 имён в порядке тайлов star-1…star-28 */
+const CONSTELLATION_NAMES = [
+  'Сельмира', 'Тэяста', 'Аридия', 'Зонэя', 'Ильсия', 'Нэлла', 'Люна',
+  'Аэтис', 'Стивия', 'Мивэль', 'Нолия', 'Вельот', 'Элирия', 'Орамэль',
+  'Юнамия', 'Каера', 'Сельста', 'Тэядия', 'Аринэя', 'Зосия', 'Ильлла',
+  'Нэна', 'Лютис', 'Аэвия', 'Стивэль', 'Милия', 'Ноот', 'Вельрия',
 ];
-const NAME_END = [
-  'мия', 'лла', 'рия', 'нэя', 'лия', 'ста', 'вия', 'ра',
-  'на', 'мэль', 'сия', 'от', 'дия', 'вэль', 'мира', 'тис',
+
+/* Далёкие: 60 имён в порядке тайлов distant-1…distant-60 */
+const DISTANT_NAMES = [
+  'Искра', 'Сиянье', 'Орбита', 'Жарка', 'Ригелька', 'Антарик', 'Альтик', 'Капелька', 'Аркти', 'Кометик',
+  'Спикси', 'Денебка', 'Прошка', 'Альди', 'Фома', 'Ахерка', 'Регушка', 'Кастори', 'Поликсик', 'Беллатя',
+  'Мирфуша', 'Альнайка', 'Шаулёнок', 'Дубби', 'Мерашка', 'Альхенка', 'Хадарка', 'Менкарик', 'Лучинка', 'Звёздочка',
+  'Пухлик', 'Лапушка', 'Нимми', 'Веспик', 'Феличка', 'Глимка', 'Снежка', 'Твинка', 'Лумик', 'Рябинка',
+  'Облачка', 'Стелла', 'Пикси', 'Цири', 'Зоринка', 'Колибри', 'Ночка', 'Сонечка', 'Фейка', 'Улыбка',
+  'Блик', 'Молли', 'Радуга', 'Хэппи', 'Галактик', 'Омик', 'Дримка', 'Бонни', 'Небушка', 'Солнышко',
 ];
 
 /* 28 созвездий — по одному на каждую созвёздную звезду */
@@ -131,7 +141,7 @@ const CROWN_STARS = [
 /* ===== Путеводные: 10 самых известных звёзд мира =====
    Созвездия, расстояния (св. лет), величины и классы — настоящие */
 const GUIDING_STARS = [
-  { name: 'Полярная звезда', constellation: 'Малая Медведица', desc: 'путеводный свет северных ночей', distance: 433, magnitude: '1,98', spectral: 'F7Ib', color: 'gold' },
+  { name: 'Полярная', constellation: 'Малая Медведица', desc: 'путеводный свет северных ночей', distance: 433, magnitude: '1,98', spectral: 'F7Ib', color: 'gold' },
   { name: 'Сириус', constellation: 'Большой Пёс', desc: 'самая яркая звезда ночного неба', distance: 9, magnitude: '−1,46', spectral: 'A1V', color: 'silver' },
   { name: 'Вега', constellation: 'Лира', desc: 'яркая жемчужина созвездия Лиры', distance: 25, magnitude: '0,03', spectral: 'A0V', color: 'blue' },
   { name: 'Бетельгейзе', constellation: 'Орион', desc: 'красный сверхгигант, предвестник перемен', distance: 548, magnitude: '0,50', spectral: 'M1Ia', color: 'red' },
@@ -150,14 +160,17 @@ const guidingStory = (data) =>
 /* Размеры генерируемых секций (венец и путеводные заданы вручную) */
 const SECTION_SIZES = { constellation: 28, distant: 60, nameless: 100 };
 
-/* Сгенерированное «народное» имя. Формула детерминированная и не даёт
-   повторов внутри секции (проверено для секций до 100 звёзд) */
-const generatedName = (seed, shift) =>
-  NAME_START[(seed + shift) % NAME_START.length] +
-  NAME_END[
-    ((seed + Math.floor(seed / NAME_START.length)) * 7 + shift * 3) %
-      NAME_END.length
-  ];
+/* Имена и тайлы по рангу: каждой звезде — своя картинка с листа 1-в-1.
+   У безымянных имени нет: имя своей звезде придумывает покупатель */
+const SECTION_ART = {
+  constellation: { prefix: 'star', names: CONSTELLATION_NAMES },
+  distant: { prefix: 'distant', names: DISTANT_NAMES },
+  nameless: { prefix: 'nameless', names: null },
+};
+
+/* История безымянной звезды — общая, про имя от покупателя */
+const NAMELESS_STORY =
+  'У этой звезды ещё нет имени — она никому не принадлежала и ни разу не звучала вслух. Первое слово, которым её назовут, останется с ней навсегда. Это слово выберете вы.';
 
 /* Генерация звезды заданной редкости (детерминированная по seed) */
 const generateStar = (seed, rarity) => {
@@ -169,7 +182,9 @@ const generateStar = (seed, rarity) => {
   const isFancy = RARITIES[rarity].order >= RARITIES.constellation.order;
   const decor = isFancy ? pick(rng, FANCY_DECORS) : pick(rng, COMMON_DECORS);
 
-  const name = generatedName(seed, RARITIES[rarity].order * 5);
+  const art = SECTION_ART[rarity];
+  /* имя — с листа-референса; у безымянных его нет */
+  const name = art.names ? art.names[seed] : '';
   /* созвёздным — своё созвездие без повторов внутри секции */
   const constellation =
     rarity === 'constellation'
@@ -185,16 +200,15 @@ const generateStar = (seed, rarity) => {
     name,
     constellation,
     color: pick(rng, STAR_PALETTE),
-    /* картинки: у созвёздных 1:1 с листом (28 штук), у остальных
-       секций те же тайлы по кругу со сдвигом, чтобы соседи не совпадали */
-    image: `star-${((seed + RARITIES[rarity].order * 9) % 28) + 1}`,
+    /* каждой звезде — свой тайл с листа, 1-в-1 по порядку */
+    image: `${art.prefix}-${seed + 1}`,
     desc: pick(rng, DESCRIPTIONS),
     distance: Math.floor(rng() * 900 + 40),
     price: rollPrice(rarity),
     /* «паспорт» для страницы звезды */
     magnitude: (rng() * 5 + 1.5).toFixed(2).replace('.', ','),
     spectral: `${pick(rng, SPECTRAL_CLASSES)}${Math.floor(rng() * 10)}`,
-    story: storyFor(rng, name, constellation),
+    story: name ? storyFor(rng, name, constellation) : NAMELESS_STORY,
   };
 };
 

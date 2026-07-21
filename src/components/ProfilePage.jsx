@@ -63,7 +63,7 @@ const purchasedStars = [
   {
     id: 3,
     cartId: 'star-guiding-0',
-    name: 'Полярная звезда',
+    name: 'Полярная',
     constellation: 'Малая Медведица',
     rarity: 'guiding',
     face: 'wink',
@@ -78,11 +78,13 @@ const purchasedStars = [
 
 /* Ссылка на праздничную страницу подарка — её и отправляют получателю.
    TODO(backend): сервер должен выдавать короткий id подарка вместо параметров */
-const makeGiftLink = (cartId, giftedTo, fromName, message) => {
+const makeGiftLink = (cartId, giftedTo, fromName, message, starName) => {
   const params = new URLSearchParams();
   if (giftedTo) params.set('to', giftedTo);
   if (fromName) params.set('from', fromName);
   if (message) params.set('m', message);
+  /* имя, которое покупатель дал безымянной звезде */
+  if (starName) params.set('n', starName);
   const qs = params.toString();
   return `${window.location.origin}/gift/${cartId}${qs ? `?${qs}` : ''}`;
 };
@@ -142,7 +144,7 @@ const ProfilePage = () => {
       order.items.map((it, idx) => ({
         id: `${order.number}-${idx}`,
         cartId: it.cartId,
-        name: it.name,
+        name: it.name || 'Безымянная звезда',
         constellation: it.constellation,
         /* в старых заказах могли остаться прежние id редкостей */
         rarity: normalizeRarity(it.rarity),
@@ -152,7 +154,7 @@ const ProfilePage = () => {
         variant: it.variant,
         image: it.image,
         giftedTo: it.giftedTo,
-        link: makeGiftLink(it.cartId, it.giftedTo, fromName, order.giftMessage),
+        link: makeGiftLink(it.cartId, it.giftedTo, fromName, order.giftMessage, it.name),
         purchaseDate: order.date,
       }))
     );

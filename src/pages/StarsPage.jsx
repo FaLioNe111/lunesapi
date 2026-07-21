@@ -132,10 +132,11 @@ const StarsPage = () => {
   /* «Подарить» = положить в корзину */
   const handleGift = (star) => {
     const added = addItem(star);
+    const label = star.name || 'Безымянная звезда';
     showToast(
       added
-        ? `«${star.name}» ждёт вас в корзине`
-        : `«${star.name}» уже лежит в корзине`
+        ? `«${label}» ждёт вас в корзине`
+        : `«${label}» уже лежит в корзине`
     );
   };
 
@@ -162,7 +163,10 @@ const StarsPage = () => {
             image={star.image}
           />
         </div>
-        <h3 className="star-name">{star.name}</h3>
+        {/* у безымянных имени нет — его придумает покупатель */}
+        <h3 className={`star-name ${star.name ? '' : 'unnamed'}`}>
+          {star.name || 'имя придумаете вы'}
+        </h3>
         <div className="star-constellation">
           {star.system || `созвездие ${star.constellation}`}
         </div>

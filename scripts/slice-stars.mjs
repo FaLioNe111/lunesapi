@@ -48,13 +48,18 @@ const removeDarkBackground = async (file) => {
   ];
   const bg = [0, 1, 2].map((ch) => Math.min(...corners.map((c) => c[ch])));
 
+  /* фон листа слегка неравномерный: всё, что тусклее FLOOR, считаем фоном,
+     иначе за звездой остаётся едва заметный прямоугольник дымки */
+  const FLOOR = 13;
+
   const out = Buffer.alloc(width * height * 4);
   for (let i = 0, o = 0; i < data.length; i += channels, o += 4) {
     const r = Math.max(0, data[i] - bg[0]);
     const g = Math.max(0, data[i + 1] - bg[1]);
     const b = Math.max(0, data[i + 2] - bg[2]);
     const lum = Math.max(r, g, b);
-    const alpha = Math.min(255, Math.round(lum * 1.3));
+    if (lum <= FLOOR) continue;
+    const alpha = Math.min(255, Math.round((lum - FLOOR) * 1.45));
     if (alpha === 0) continue;
     const k = 255 / alpha;
     out[o] = Math.min(255, Math.round(r * k));

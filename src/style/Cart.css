@@ -130,6 +130,17 @@
   position: static;
 }
 
+.cart-item-name.unnamed {
+  color: #aab6e0;
+  font-style: italic;
+}
+
+/* поле «придумайте имя звезде» — золотая рамка, чтобы бросалось в глаза */
+.cart-item-naming {
+  border-color: rgba(243, 212, 136, 0.45);
+  margin-bottom: 0.5rem;
+}
+
 .cart-item-constellation {
   color: #8fa0d6;
   font-size: 0.85rem;

@@ -28,10 +28,11 @@ const GiftPage = () => {
   const { cartId } = useParams();
   const [searchParams] = useSearchParams();
 
-  /* данные подарка из ссылки */
+  /* данные подарка из ссылки; n — имя, которое покупатель дал безымянной */
   const to = searchParams.get('to') || '';
   const from = searchParams.get('from') || '';
   const message = searchParams.get('m') || '';
+  const customName = searchParams.get('n') || '';
 
   /* undefined — загрузка; null — не нашли; объект — готово */
   const [data, setData] = useState(undefined);
@@ -154,7 +155,9 @@ const GiftPage = () => {
                   image={star.image}
                 />
               </div>
-              <h2 className="star-name">{star.name}</h2>
+              <h2 className="star-name">
+                {star.name || customName || 'Ваша звезда'}
+              </h2>
               <div className="star-constellation">
                 {star.system || `созвездие ${star.constellation}`}
               </div>

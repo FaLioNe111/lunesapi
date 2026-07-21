@@ -117,7 +117,8 @@ const CartPage = () => {
         date: new Date().toLocaleDateString('ru-RU'),
         items: items.map((it) => ({
           cartId: it.cartId,
-          name: it.name,
+          /* безымянной имя дал покупатель */
+          name: it.name || it.customName || '',
           rarity: it.rarity,
           constellation: it.constellation,
           face: it.face,
@@ -225,7 +226,9 @@ const CartPage = () => {
                     </div>
                     <div className="cart-item-info">
                       <div className="cart-item-head">
-                        <h3 className="cart-item-name">{it.name}</h3>
+                        <h3 className={`cart-item-name ${it.name ? '' : 'unnamed'}`}>
+                          {it.name || it.customName || 'Безымянная звезда'}
+                        </h3>
                         <span className={`star-badge ${it.rarity}-badge cart-item-badge`}>
                           {RARITIES[it.rarity].label}
                         </span>
@@ -239,6 +242,18 @@ const CartPage = () => {
                           ? it.desc
                           : `${it.desc}; ${RARITIES[it.rarity].tagline}`}
                       </p>
+                      {/* безымянной звезде имя придумывает покупатель */}
+                      {!it.name && (
+                        <input
+                          className="cart-item-recipient cart-item-naming"
+                          type="text"
+                          placeholder="Придумайте имя звезде — оно останется навсегда"
+                          value={it.customName || ''}
+                          onChange={(e) =>
+                            updateItem(it.cartId, { customName: e.target.value })
+                          }
+                        />
+                      )}
                       <input
                         className="cart-item-recipient"
                         type="text"

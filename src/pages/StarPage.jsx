@@ -124,7 +124,15 @@ const StarPage = () => {
 
               {/* Информация и покупка */}
               <div className="star-page-info">
-                <h1 className="star-page-name">{star.name}</h1>
+                <h1 className={`star-page-name ${star.name ? '' : 'unnamed'}`}>
+                  {star.name || 'Пока без имени'}
+                </h1>
+                {!star.name && (
+                  <p className="star-page-naming">
+                    Эту звезду назовёте вы: впишете имя при оформлении —
+                    и оно останется за ней навсегда.
+                  </p>
+                )}
                 <div className="star-page-place">
                   {star.system || `созвездие ${star.constellation}`}
                 </div>

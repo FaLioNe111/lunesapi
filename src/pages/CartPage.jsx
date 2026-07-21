@@ -122,6 +122,8 @@ const CartPage = () => {
           constellation: it.constellation,
           face: it.face,
           decor: it.decor,
+          color: it.color,
+          variant: it.variant,
           price: it.price,
           giftedTo: it.giftedTo || senderName,
         })),
@@ -211,7 +213,13 @@ const CartPage = () => {
                 {items.map((it) => (
                   <article key={it.cartId} className={`cart-item ${it.rarity}`}>
                     <div className="cart-item-visual">
-                      <StarAvatar face={it.face} decor={it.decor} size={84} />
+                      <StarAvatar
+                        face={it.face}
+                        decor={it.decor}
+                        size={84}
+                        color={it.color}
+                        variant={it.variant}
+                      />
                     </div>
                     <div className="cart-item-info">
                       <div className="cart-item-head">

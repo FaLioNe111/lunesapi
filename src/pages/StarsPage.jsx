@@ -18,14 +18,7 @@ const RARITY_LABEL = Object.fromEntries(
 
 /* ===== Фильтры каталога =====
    Сейчас применяются на фронте; при подключении бэкенда те же значения
-   уходят параметрами запроса. TODO(backend): fetchCatalog({ search, rarity, price, sort }) */
-const PRICE_FILTERS = [
-  { id: 'all', label: 'Любая цена' },
-  { id: 'lt3000', label: 'До 3 000 ₽' },
-  { id: 'mid', label: '3 000–10 000 ₽' },
-  { id: 'gt10000', label: 'От 10 000 ₽' },
-];
-
+   уходят параметрами запроса. TODO(backend): fetchCatalog({ search, rarity, sort }) */
 const SORT_OPTIONS = [
   { id: 'default', label: 'По редкости' },
   { id: 'asc', label: 'Сначала дешевле' },
@@ -34,19 +27,6 @@ const SORT_OPTIONS = [
 
 /* Сколько карточек секции показывать сразу; остальное — по «Показать ещё» */
 const SECTION_PREVIEW = 24;
-
-const matchesPrice = (star, priceFilter) => {
-  switch (priceFilter) {
-    case 'lt3000':
-      return star.price < 3000;
-    case 'mid':
-      return star.price >= 3000 && star.price <= 10000;
-    case 'gt10000':
-      return star.price > 10000;
-    default:
-      return true;
-  }
-};
 
 const StarsPage = () => {
   const navigate = useNavigate();
@@ -72,7 +52,6 @@ const StarsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get('q') || '';
   const rarityFilter = searchParams.get('rarity') || 'all';
-  const priceFilter = searchParams.get('price') || 'all';
   const sortOrder = searchParams.get('sort') || 'default';
 
   /* значение по умолчанию из URL убираем, чтобы адрес оставался чистым */
@@ -88,7 +67,6 @@ const StarsPage = () => {
   const filtersActive =
     search.trim() !== '' ||
     rarityFilter !== 'all' ||
-    priceFilter !== 'all' ||
     sortOrder !== 'default';
 
   const resetFilters = () => {
@@ -102,23 +80,21 @@ const StarsPage = () => {
     return sections
       .filter((sec) => rarityFilter === 'all' || sec.id === rarityFilter)
       .map((sec) => {
-        let stars = sec.stars.filter((s) => {
-          if (
-            q &&
-            !s.name.toLowerCase().includes(q) &&
-            !(s.constellation || '').toLowerCase().includes(q) &&
-            !(s.system || '').toLowerCase().includes(q)
-          ) {
-            return false;
-          }
-          return matchesPrice(s, priceFilter);
-        });
-        if (sortOrder === 'asc') stars = [...stars].sort((a, b) => a.price - b.price);
-        if (sortOrder === 'desc') stars = [...stars].sort((a, b) => b.price - a.price);
+        let stars = sec.stars.filter(
+          (s) =>
+            !q ||
+            s.name.toLowerCase().includes(q) ||
+            (s.constellation || '').toLowerCase().includes(q) ||
+            (s.system || '').toLowerCase().includes(q)
+        );
+        /* у Солнца и Луны цены нет — при сортировке считаем её нулевой */
+        const priceOf = (s) => s.price || 0;
+        if (sortOrder === 'asc') stars = [...stars].sort((a, b) => priceOf(a) - priceOf(b));
+        if (sortOrder === 'desc') stars = [...stars].sort((a, b) => priceOf(b) - priceOf(a));
         return { ...sec, stars };
       })
       .filter((sec) => sec.stars.length > 0);
-  }, [sections, search, rarityFilter, priceFilter, sortOrder]);
+  }, [sections, search, rarityFilter, sortOrder]);
 
   const foundCount = shownSections.reduce((sum, s) => sum + s.stars.length, 0);
 
@@ -177,7 +153,13 @@ const StarsPage = () => {
           </span>
         )}
         <div className="star-visual">
-          <StarAvatar face={star.face} decor={star.decor} size={126} />
+          <StarAvatar
+            face={star.face}
+            decor={star.decor}
+            size={126}
+            color={star.color}
+            variant={star.variant}
+          />
         </div>
         <h3 className="star-name">{star.name}</h3>
         <div className="star-constellation">
@@ -188,18 +170,25 @@ const StarsPage = () => {
           {star.metaText || `${star.distance} св. лет от вас`}
         </div>
         <div className="star-foot">
-          <span className="star-price">{star.price.toLocaleString('ru-RU')} ₽</span>
-          <button
-            className={`gift-button ${inCart ? 'in-cart' : ''}`}
-            onClick={(e) => {
-              /* кнопка не должна открывать страницу звезды */
-              e.stopPropagation();
-              if (inCart) navigate('/cart');
-              else handleGift(star);
-            }}
-          >
-            {inCart ? 'В корзине' : 'Подарить'}
-          </button>
+          {/* Солнце и Луна не продаются — выпадают только в рулетке */}
+          {star.dropOnly ? (
+            <span className="star-drop-only">Только в рулетке</span>
+          ) : (
+            <>
+              <span className="star-price">{star.price.toLocaleString('ru-RU')} ₽</span>
+              <button
+                className={`gift-button ${inCart ? 'in-cart' : ''}`}
+                onClick={(e) => {
+                  /* кнопка не должна открывать страницу звезды */
+                  e.stopPropagation();
+                  if (inCart) navigate('/cart');
+                  else handleGift(star);
+                }}
+              >
+                {inCart ? 'В корзине' : 'Подарить'}
+              </button>
+            </>
+          )}
         </div>
       </article>
     );
@@ -238,15 +227,6 @@ const StarsPage = () => {
             value={search}
             onChange={(e) => setFilterParam('q', e.target.value, '')}
           />
-          <select
-            className="catalog-select"
-            value={priceFilter}
-            onChange={(e) => setFilterParam('price', e.target.value, 'all')}
-          >
-            {PRICE_FILTERS.map((p) => (
-              <option key={p.id} value={p.id}>{p.label}</option>
-            ))}
-          </select>
           <select
             className="catalog-select"
             value={sortOrder}

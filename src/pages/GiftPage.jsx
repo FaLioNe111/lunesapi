@@ -145,7 +145,13 @@ const GiftPage = () => {
                 {RARITIES[star.rarity].label}
               </span>
               <div className="star-visual gift-card-visual">
-                <StarAvatar face={star.face} decor={star.decor} size={150} />
+                <StarAvatar
+                  face={star.face}
+                  decor={star.decor}
+                  size={150}
+                  color={star.color}
+                  variant={star.variant}
+                />
               </div>
               <h2 className="star-name">{star.name}</h2>
               <div className="star-constellation">

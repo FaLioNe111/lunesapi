@@ -16,16 +16,14 @@
  */
 
 export const RARITIES = {
-  /* Безымянная — обычные слабые звёзды, о которых почти никто не знает */
+  /* Безымянная — слабые звёзды, о которых почти никто не знает */
   nameless: {
     id: 'nameless',
     label: 'Безымянная',
     order: 0,
-    priceFrom: 990,        // базовая цена, ₽
-    priceStep: 200,        // шаг случайной надбавки
-    priceSteps: 6,         // количество шагов
+    price: 99,             // фиксированная цена категории, ₽
     tagline: 'звезда, о которой почти никто не знает',
-    groupTagline: 'обычные тихие звёзды — их сотня, и каждая ждёт своего человека',
+    groupTagline: 'тихие звёзды — их сотня, и каждая ждёт своего человека',
   },
 
   /* Далёкая — звёзды из глубины неба */
@@ -33,9 +31,7 @@ export const RARITIES = {
     id: 'distant',
     label: 'Далёкая',
     order: 1,
-    priceFrom: 1990,
-    priceStep: 300,
-    priceSteps: 7,
+    price: 149,
     tagline: 'светит из глубины неба',
     groupTagline: 'их свет идёт к нам сотни лет — тем ценнее, что он дошёл',
   },
@@ -45,9 +41,7 @@ export const RARITIES = {
     id: 'constellation',
     label: 'Созвёздная',
     order: 2,
-    priceFrom: 3990,
-    priceStep: 500,
-    priceSteps: 6,
+    price: 299,
     tagline: 'известна в составе своего созвездия',
     groupTagline: 'звёзды, известные в составе своих созвездий',
   },
@@ -57,23 +51,20 @@ export const RARITIES = {
     id: 'guiding',
     label: 'Путеводная',
     order: 3,
-    priceFrom: 9990,
-    priceStep: 1000,
-    priceSteps: 6,
+    price: 499,
     tagline: 'по ней веками сверяли путь',
     groupTagline: 'самые известные звёзды мира — по ним веками сверяли путь',
   },
 
-  /* Небесный Венец — вершина каталога: только Солнце и Луна */
+  /* Небесный Венец — вершина каталога: Солнце и Луна.
+     Не продаются за деньги: выпадают только в рулетке */
   crown: {
     id: 'crown',
     label: 'Небесный Венец',
     order: 4,
-    priceFrom: 39990,
-    priceStep: 0,
-    priceSteps: 1,
+    price: 999,
     tagline: 'главное светило неба',
-    groupTagline: 'вершина каталога — только два главных светила: Солнце и Луна',
+    groupTagline: 'вершина каталога — два главных светила: Солнце и Луна',
   },
 };
 
@@ -100,8 +91,5 @@ const LEGACY_RARITY_MAP = {
 export const normalizeRarity = (id) =>
   RARITIES[id] ? id : LEGACY_RARITY_MAP[id] || 'nameless';
 
-/* Цена по редкости с детерминированным разбросом */
-export const rollPrice = (rarityId, rng) => {
-  const r = RARITIES[rarityId];
-  return r.priceFrom + Math.floor(rng() * r.priceSteps) * r.priceStep;
-};
+/* Цена звезды — фиксированная для всей категории */
+export const rollPrice = (rarityId) => RARITIES[rarityId].price;

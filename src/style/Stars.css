@@ -679,6 +679,19 @@
   white-space: nowrap;
 }
 
+/* Солнце и Луна не продаются — вместо цены надпись */
+.star-drop-only {
+  color: #d8b4ff;
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  letter-spacing: 0.3px;
+  padding: 0.5rem 0.9rem;
+  border: 1px dashed rgba(216, 180, 255, 0.5);
+  border-radius: 12px;
+  width: 100%;
+  text-align: center;
+}
+
 .gift-button {
   background: linear-gradient(135deg, #f3d488, #e0a95e);
   color: #241a08;

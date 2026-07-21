@@ -130,6 +130,16 @@
   font-weight: 700;
 }
 
+/* светило, которое нельзя купить */
+.star-page-droponly {
+  color: #d8b4ff;
+  font-family: 'Neucha', cursive;
+  font-size: 1.3rem;
+  padding: 0.6rem 1.6rem;
+  border: 1px dashed rgba(216, 180, 255, 0.55);
+  border-radius: 14px;
+}
+
 .star-page-buy .gift-button {
   padding: 0.7rem 1.8rem;
   font-size: 1.08rem;

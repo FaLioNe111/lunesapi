@@ -108,7 +108,13 @@ const StarPage = () => {
                   {RARITIES[star.rarity].label}
                 </span>
                 <div className="star-visual star-hero-visual">
-                  <StarAvatar face={star.face} decor={star.decor} size={210} />
+                  <StarAvatar
+                    face={star.face}
+                    decor={star.decor}
+                    size={210}
+                    color={star.color}
+                    variant={star.variant}
+                  />
                 </div>
                 <div className="star-meta">
                   {star.metaText || `${star.distance} св. лет от вас`}
@@ -135,23 +141,37 @@ const StarPage = () => {
                   ))}
                 </dl>
 
-                <div className="star-page-buy">
-                  <span className="star-page-price">
-                    {star.price.toLocaleString('ru-RU')} ₽
-                  </span>
-                  <button
-                    className={`gift-button ${inCart ? 'in-cart' : ''}`}
-                    onClick={() =>
-                      inCart ? navigate('/cart') : addItem(star)
-                    }
-                  >
-                    {inCart ? 'В корзине' : 'Подарить'}
-                  </button>
-                </div>
-                <p className="star-page-note">
-                  После оплаты получателю придёт письмо с именем звезды
-                  и тёплыми словами от вас.
-                </p>
+                {/* Солнце и Луна не продаются — выпадают только в рулетке */}
+                {star.dropOnly ? (
+                  <>
+                    <div className="star-page-buy">
+                      <span className="star-page-droponly">Только в рулетке</span>
+                    </div>
+                    <p className="star-page-note">
+                      Это светило нельзя купить: оно выпадает только в рулетке.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="star-page-buy">
+                      <span className="star-page-price">
+                        {star.price.toLocaleString('ru-RU')} ₽
+                      </span>
+                      <button
+                        className={`gift-button ${inCart ? 'in-cart' : ''}`}
+                        onClick={() =>
+                          inCart ? navigate('/cart') : addItem(star)
+                        }
+                      >
+                        {inCart ? 'В корзине' : 'Подарить'}
+                      </button>
+                    </div>
+                    <p className="star-page-note">
+                      После оплаты получателю придёт письмо с именем звезды
+                      и тёплыми словами от вас.
+                    </p>
+                  </>
+                )}
               </div>
             </div>
 
@@ -167,15 +187,25 @@ const StarPage = () => {
                       className={`sky-card neighbour-card ${s.rarity} ${s.variant || ''}`}
                     >
                       <div className="star-visual">
-                        <StarAvatar face={s.face} decor={s.decor} size={90} />
+                        <StarAvatar
+                          face={s.face}
+                          decor={s.decor}
+                          size={90}
+                          color={s.color}
+                          variant={s.variant}
+                        />
                       </div>
                       <h3 className="star-name">{s.name}</h3>
                       <div className="star-constellation">
                         {s.system || `созвездие ${s.constellation}`}
                       </div>
-                      <span className="star-price">
-                        {s.price.toLocaleString('ru-RU')} ₽
-                      </span>
+                      {s.dropOnly ? (
+                        <span className="star-drop-only">Только в рулетке</span>
+                      ) : (
+                        <span className="star-price">
+                          {s.price.toLocaleString('ru-RU')} ₽
+                        </span>
+                      )}
                     </Link>
                   ))}
                 </div>

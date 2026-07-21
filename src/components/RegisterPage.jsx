@@ -107,7 +107,7 @@ const RegisterPage = () => {
                   value={formData.password}
                   onChange={handleChange}
                   className="form-input"
-                  placeholder="Введите пароль"
+                  placeholder="Придумайте пароль"
                   required
                 />
               </div>

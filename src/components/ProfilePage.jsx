@@ -38,6 +38,7 @@ const purchasedStars = [
     rarity: 'guiding',
     face: 'joy',
     decor: 'sparkles',
+    color: 'silver',
     giftedTo: 'Анна',
     giftMessage: 'Пусть самая яркая звезда неба светит только тебе',
     purchaseDate: '15.03.2024',
@@ -50,6 +51,7 @@ const purchasedStars = [
     rarity: 'guiding',
     face: 'happy',
     decor: 'ring',
+    color: 'blue',
     giftedTo: 'Мария',
     giftMessage: 'Теперь у тебя есть своя точка опоры на небе',
     purchaseDate: '22.04.2024',
@@ -62,6 +64,7 @@ const purchasedStars = [
     rarity: 'guiding',
     face: 'wink',
     decor: 'orbit',
+    color: 'gold',
     giftedTo: 'Екатерина',
     giftMessage: 'Чтобы ты всегда находила дорогу домой',
     purchaseDate: '10.05.2024',
@@ -121,6 +124,8 @@ const ProfilePage = () => {
         rarity: normalizeRarity(it.rarity),
         face: it.face,
         decor: it.decor,
+        color: it.color,
+        variant: it.variant,
         giftedTo: it.giftedTo,
         link: makeGiftLink(it.cartId, it.giftedTo, fromName, order.giftMessage),
         purchaseDate: order.date,
@@ -274,7 +279,13 @@ const ProfilePage = () => {
                     <div key={star.id} className="star-card">
                       <div className="star-header">
                         <div className="star-header-visual">
-                          <StarAvatar face={star.face} decor={star.decor} size={56} />
+                          <StarAvatar
+                            face={star.face}
+                            decor={star.decor}
+                            size={56}
+                            color={star.color}
+                            variant={star.variant}
+                          />
                           <div>
                             <h3 className="star-name">{star.name}</h3>
                             <span className="star-constellation">{star.constellation}</span>

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import StarAvatar from '../components/StarAvatar';
 import { RARITIES, normalizeRarity } from '../data/rarities';
 import { getCurrentUser, updateProfile, logout } from '../data/auth';
 import { fetchOrders } from '../data/orders';
+import { TOKEN_PACKS, getBalance, buyTokens, tokenWord } from '../data/tokens';
 import '../style/index.css';
 import '../style/Profile.css';
 import starryVideo from '../assets/stars.mp4';
@@ -22,6 +23,7 @@ import starryVideo from '../assets/stars.mp4';
 /* Вкладки кабинета */
 const PROFILE_TABS = [
   { id: 'stars', label: 'Мои звёзды' },
+  { id: 'tokens', label: 'Токены' },
   { id: 'orders', label: 'Заказы' },
   { id: 'settings', label: 'Настройки' },
 ];
@@ -84,12 +86,31 @@ const makeGiftLink = (cartId, giftedTo, fromName, message) => {
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [copiedId, setCopiedId] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [activeTab, setActiveTab] = useState('stars');
+  /* вкладку можно открыть ссылкой: /profile?tab=tokens */
+  const [activeTab, setActiveTab] = useState(
+    () => searchParams.get('tab') || 'stars'
+  );
   const [orders, setOrders] = useState([]);
   const [settingsForm, setSettingsForm] = useState(null);
   const [settingsSaved, setSettingsSaved] = useState(false);
+  const [tokens, setTokens] = useState(0);
+  const [boughtPack, setBoughtPack] = useState(null);
+
+  useEffect(() => {
+    setTokens(getBalance());
+  }, []);
+
+  /* Покупка набора токенов (мок: начисляем сразу).
+     TODO(backend): сначала оплата, потом начисление с сервера */
+  const handleBuyTokens = async (pack) => {
+    const balance = await buyTokens(pack);
+    setTokens(balance);
+    setBoughtPack(pack.id);
+    setTimeout(() => setBoughtPack(null), 2500);
+  };
 
   useEffect(() => {
     // Загружаем данные пользователя через мок-API авторизации
@@ -243,6 +264,10 @@ const ProfilePage = () => {
               <span className="stat-value">{stats.bestRarity}</span>
               <span className="stat-label">лучшая редкость</span>
             </div>
+            <div className="stat-card">
+              <span className="stat-value">{tokens}</span>
+              <span className="stat-label">{tokenWord(tokens)} для рулетки</span>
+            </div>
           </div>
 
           {/* Вкладки */}
@@ -333,6 +358,46 @@ const ProfilePage = () => {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ===== Вкладка «Токены» ===== */}
+          {activeTab === 'tokens' && (
+            <div className="profile-section">
+              <h2 className="section-title">Токены</h2>
+
+              <div className="tokens-balance">
+                <span className="tokens-balance-value">{tokens}</span>
+                <span className="tokens-balance-label">
+                  {tokenWord(tokens)} на балансе
+                </span>
+                <p className="tokens-hint">
+                  За токены крутят рулетку — там выпадают звёзды, которые
+                  нельзя купить: Солнце и Луна.
+                </p>
+              </div>
+
+              <div className="tokens-packs">
+                {TOKEN_PACKS.map((pack) => (
+                  <div key={pack.id} className="token-pack">
+                    <span className="token-pack-amount">
+                      {pack.amount} {tokenWord(pack.amount)}
+                    </span>
+                    <span className="token-pack-price">
+                      {pack.price.toLocaleString('ru-RU')} ₽
+                    </span>
+                    <span className="token-pack-each">
+                      {Math.round(pack.price / pack.amount)} ₽ за токен
+                    </span>
+                    <button
+                      className="browse-stars-button token-pack-button"
+                      onClick={() => handleBuyTokens(pack)}
+                    >
+                      {boughtPack === pack.id ? 'Зачислено' : 'Купить'}
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

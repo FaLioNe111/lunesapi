@@ -209,8 +209,8 @@ const StarsPage = () => {
           <h1 className="catalog-title">Каталог звёзд</h1>
           <p className="catalog-sub">
             {totalStars || 200} небесных объектов, разложенных по редкости.
-            На вершине — только Солнце и Луна, а все самые известные звёзды
-            мира ступенью ниже.
+            На вершине — Солнце и Луна, а все самые известные звёзды мира
+            ступенью ниже.
           </p>
           <div className="catalog-counter">
             <span className="counter-dot"></span>

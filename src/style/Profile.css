@@ -414,6 +414,80 @@
   color: #f3d488;
 }
 
+/* ===== Токены ===== */
+.tokens-balance {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(243, 212, 136, 0.25);
+  border-radius: 14px;
+  padding: 1.4rem 1.6rem;
+  margin-bottom: 1.4rem;
+}
+
+.tokens-balance-value {
+  color: #f3d488;
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-right: 0.6rem;
+}
+
+.tokens-balance-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.05rem;
+}
+
+.tokens-hint {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  margin: 0.7rem 0 0;
+}
+
+.tokens-packs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1rem;
+}
+
+.token-pack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(168, 180, 224, 0.25);
+  border-radius: 14px;
+  padding: 1.2rem 1.3rem;
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+
+.token-pack:hover {
+  border-color: rgba(243, 212, 136, 0.5);
+  transform: translateY(-2px);
+}
+
+.token-pack-amount {
+  color: #fdf3d7;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.token-pack-price {
+  color: #f3d488;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.token-pack-each {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.85rem;
+}
+
+.token-pack-button {
+  margin-top: 0.7rem;
+  width: 100%;
+}
+
 /* ===== История заказов ===== */
 .orders-list {
   display: flex;

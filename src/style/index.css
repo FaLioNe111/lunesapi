@@ -103,6 +103,23 @@ html {
   gap: 0.4rem;
 }
 
+/* Баланс токенов в шапке */
+.header-tokens {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #f3d488;
+  border: 1px solid rgba(243, 212, 136, 0.35);
+  border-radius: 999px;
+  padding: 0.2rem 0.75rem;
+  font-size: 1.05rem;
+}
+
+.header-tokens:hover {
+  background: rgba(243, 212, 136, 0.12);
+  color: #f6dfa0;
+}
+
 .header-cart-count {
   min-width: 20px;
   height: 20px;

@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="footer-main">
             {/* Логотип */}
             <div className="footer-brand">
-              <h3 className="footer-title">Звездочёт</h3>
+              <h3 className="footer-title">Лого</h3>
             </div>
             
             {/* Навигация */}

@@ -30,7 +30,7 @@ const Header = () => {
               strokeLinejoin="round"
             />
           </svg>
-          <span>Звездочёт</span>
+          <span>Лого</span>
         </button>
 
         <nav className="header-nav">

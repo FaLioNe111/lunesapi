@@ -104,6 +104,15 @@ const StarPage = () => {
               <div
                 className={`sky-card star-hero ${star.rarity} ${star.variant || ''}`}
               >
+                {/* светило из рулетки — переливающийся кант и искры */}
+                {star.dropOnly && (
+                  <>
+                    <span className="crown-frame" aria-hidden="true"></span>
+                    <span className="crown-sparks" aria-hidden="true">
+                      <i></i><i></i><i></i><i></i>
+                    </span>
+                  </>
+                )}
                 <span className={`star-badge ${star.rarity}-badge`}>
                   {RARITIES[star.rarity].label}
                 </span>
@@ -154,10 +163,11 @@ const StarPage = () => {
                 {star.dropOnly ? (
                   <>
                     <div className="star-page-buy">
-                      <span className="star-page-droponly">Только в рулетке</span>
+                      <span className="star-page-droponly">Только из рулетки</span>
                     </div>
                     <p className="star-page-note">
-                      Это светило нельзя купить: оно выпадает только в рулетке.
+                      Это светило нельзя купить за деньги — только выиграть
+                      в рулетке.
                     </p>
                   </>
                 ) : (

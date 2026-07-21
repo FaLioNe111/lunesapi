@@ -5,13 +5,15 @@
   min-height: 100vh;
 }
 
-/* Контейнер авторизации */
+/* Контейнер авторизации: сверху — место под фиксированную шапку,
+   форма центрируется в оставшемся пространстве */
 .auth-container {
   position: relative;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: calc(var(--header-h) + 1.5rem) 1rem 2.5rem;
   overflow: hidden;
   background: #060c22;
 }

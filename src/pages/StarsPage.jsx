@@ -148,6 +148,15 @@ const StarsPage = () => {
         className={`sky-card clickable ${star.rarity} ${star.variant || ''}`}
         onClick={() => navigate(`/star/${star.cartId}`)}
       >
+        {/* Солнце и Луна — только из рулетки: переливающийся кант и искры */}
+        {star.dropOnly && (
+          <>
+            <span className="crown-frame" aria-hidden="true"></span>
+            <span className="crown-sparks" aria-hidden="true">
+              <i></i><i></i><i></i><i></i>
+            </span>
+          </>
+        )}
         {RARITY_LABEL[star.rarity] && (
           <span className={`star-badge ${star.rarity}-badge`}>
             {RARITY_LABEL[star.rarity]}
@@ -177,7 +186,10 @@ const StarsPage = () => {
         <div className="star-foot">
           {/* Солнце и Луна не продаются — выпадают только в рулетке */}
           {star.dropOnly ? (
-            <span className="star-drop-only">Только в рулетке</span>
+            <span className="star-drop-only">
+              Выпадает только в рулетке
+              <em>за деньги не продаётся</em>
+            </span>
           ) : (
             <>
               <span className="star-price">{star.price.toLocaleString('ru-RU')} ₽</span>

@@ -15,12 +15,28 @@ const HomePage = () => {
       {/* Секция с картинкой */}
       <div className="hero-section">
         <div className="hero-image-wrapper">
-          <img 
-            src={nightScene} 
-            alt="Night Scene" 
+          <img
+            src={nightScene}
+            alt="Night Scene"
             className="hero-image"
           />
-          
+
+          {/* Сияние луны и мерцающие искры на небе */}
+          <div className="moon-glow" aria-hidden="true"></div>
+          <div className="hero-sparkle s1" aria-hidden="true"></div>
+          <div className="hero-sparkle s2" aria-hidden="true"></div>
+          <div className="hero-sparkle s3" aria-hidden="true"></div>
+          <div className="hero-sparkle s4" aria-hidden="true"></div>
+          <div className="hero-sparkle s5" aria-hidden="true"></div>
+
+          {/* Разговор человечков */}
+          <div className="speech-bubble speech-girl">
+            Загадала желание вон на ту, самую яркую…
+          </div>
+          <div className="speech-bubble speech-boy">
+            Не загадывай — я её тебе подарю
+          </div>
+
           {/* Телескоп с анимацией */}
           <button
             onClick={() => navigate('/start')}
@@ -29,7 +45,7 @@ const HomePage = () => {
           >
             <div className="telescope-glow"></div>
           </button>
-          
+
           <div className="telescope-hint">
             Нажмите, чтобы начать
           </div>

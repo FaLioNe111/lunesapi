@@ -5,11 +5,11 @@
   min-height: 100vh;
 }
 
-/* Контейнер профиля */
+/* Контейнер профиля: сверху — место под фиксированную шапку */
 .profile-container {
   position: relative;
   flex: 1;
-  padding: 2rem;
+  padding: calc(var(--header-h) + 2rem) 2rem 2rem;
   overflow: hidden;
   background: #060c22;
 }

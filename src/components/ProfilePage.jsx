@@ -6,7 +6,8 @@ import StarAvatar from '../components/StarAvatar';
 import { RARITIES, normalizeRarity } from '../data/rarities';
 import { getCurrentUser, updateProfile, logout } from '../data/auth';
 import { fetchOrders } from '../data/orders';
-import { TOKEN_PACKS, getBalance, buyTokens, tokenWord } from '../data/tokens';
+import { TOKEN_PACKS, getBalance, buyTokens, ticketWord } from '../data/tokens';
+import { getWins } from '../data/wheel';
 import '../style/index.css';
 import '../style/Profile.css';
 import starryVideo from '../assets/stars.mp4';
@@ -23,7 +24,7 @@ import starryVideo from '../assets/stars.mp4';
 /* Вкладки кабинета */
 const PROFILE_TABS = [
   { id: 'stars', label: 'Мои звёзды' },
-  { id: 'tokens', label: 'Токены' },
+  { id: 'tokens', label: 'Билеты' },
   { id: 'orders', label: 'Заказы' },
   { id: 'settings', label: 'Настройки' },
 ];
@@ -99,6 +100,7 @@ const ProfilePage = () => {
     () => searchParams.get('tab') || 'stars'
   );
   const [orders, setOrders] = useState([]);
+  const [wins, setWins] = useState([]);
   const [settingsForm, setSettingsForm] = useState(null);
   const [settingsSaved, setSettingsSaved] = useState(false);
   const [tokens, setTokens] = useState(0);
@@ -134,6 +136,8 @@ const ProfilePage = () => {
 
     // История заказов, оформленных через корзину
     fetchOrders().then(setOrders);
+    // Звёзды, выигранные в колесе
+    setWins(getWins());
   }, [navigate]);
 
   /* Полный список звёзд: демо + купленные через корзину.
@@ -162,8 +166,25 @@ const ProfilePage = () => {
       ...s,
       link: makeGiftLink(s.cartId, s.giftedTo, fromName, s.giftMessage),
     }));
-    return [...fromOrders, ...demo];
-  }, [orders, userData]);
+    /* выигранные в колесе — свежие сверху */
+    const fromWins = wins.map((w, idx) => ({
+      id: `won-${idx}`,
+      cartId: w.cartId,
+      name: w.name,
+      constellation: w.system || w.constellation || 'Колесо звёзд',
+      rarity: normalizeRarity(w.rarity),
+      face: w.face,
+      decor: w.decor,
+      color: w.color,
+      variant: w.variant,
+      image: w.image,
+      giftedTo: '',
+      link: makeGiftLink(w.cartId, '', fromName, '', w.name),
+      purchaseDate: w.wonAt,
+      won: true,
+    }));
+    return [...fromWins, ...fromOrders, ...demo];
+  }, [orders, userData, wins]);
 
   /* Статистика для верхней панели кабинета */
   const stats = useMemo(() => {
@@ -272,7 +293,7 @@ const ProfilePage = () => {
             </div>
             <div className="stat-card">
               <span className="stat-value">{tokens}</span>
-              <span className="stat-label">{tokenWord(tokens)} для рулетки</span>
+              <span className="stat-label">{ticketWord(tokens)} для колеса</span>
             </div>
           </div>
 
@@ -368,33 +389,39 @@ const ProfilePage = () => {
             </div>
           )}
 
-          {/* ===== Вкладка «Токены» ===== */}
+          {/* ===== Вкладка «Билеты» ===== */}
           {activeTab === 'tokens' && (
             <div className="profile-section">
-              <h2 className="section-title">Токены</h2>
+              <h2 className="section-title">Билеты</h2>
 
               <div className="tokens-balance">
                 <span className="tokens-balance-value">{tokens}</span>
                 <span className="tokens-balance-label">
-                  {tokenWord(tokens)} на балансе
+                  {ticketWord(tokens)} на балансе
                 </span>
                 <p className="tokens-hint">
-                  За токены крутят рулетку — там выпадают звёзды, которые
+                  За билеты крутят колесо звёзд — там выпадают звёзды, которые
                   нельзя купить: Солнце и Луна.
                 </p>
+                <button
+                  className="browse-stars-button"
+                  onClick={() => navigate('/wheel')}
+                >
+                  К колесу звёзд
+                </button>
               </div>
 
               <div className="tokens-packs">
                 {TOKEN_PACKS.map((pack) => (
                   <div key={pack.id} className="token-pack">
                     <span className="token-pack-amount">
-                      {pack.amount} {tokenWord(pack.amount)}
+                      {pack.amount} {ticketWord(pack.amount)}
                     </span>
                     <span className="token-pack-price">
                       {pack.price.toLocaleString('ru-RU')} ₽
                     </span>
                     <span className="token-pack-each">
-                      {Math.round(pack.price / pack.amount)} ₽ за токен
+                      {Math.round(pack.price / pack.amount)} ₽ за билет
                     </span>
                     <button
                       className="browse-stars-button token-pack-button"

@@ -1,0 +1,587 @@
+/* ===== Колесо звёзд ===== */
+
+/* фон страницы — тёмно-синий радиальный, как на референсе */
+.wheel-root {
+  background:
+    radial-gradient(circle at 50% 30%, #1b2c60 0%, #0d1740 42%, #070d24 100%) !important;
+}
+
+.wheel-page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: calc(var(--header-h) + 2rem) 1.5rem 4rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===== Заголовок ===== */
+.wheel-hero {
+  text-align: center;
+  margin-bottom: 1.6rem;
+}
+
+.wheel-title {
+  font-family: 'Neucha', cursive;
+  color: #f3d488;
+  font-size: 3.2rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin: 0;
+  text-shadow: 0 0 34px rgba(243, 212, 136, 0.45);
+}
+
+.ttl-spark {
+  color: #f3d488;
+  opacity: 0.85;
+  font-size: 0.7em;
+  vertical-align: middle;
+}
+
+.ttl-spark.small {
+  font-size: 0.9em;
+}
+
+.wheel-sub {
+  color: #b9c6ee;
+  font-family: 'Neucha', cursive;
+  font-size: 1.15rem;
+  margin: 0.5rem 0 0;
+}
+
+/* ===== Сцена с колесом ===== */
+.wheel-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.3rem;
+}
+
+.wheel-frame {
+  position: relative;
+  width: min(600px, 90vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: drop-shadow(0 18px 50px rgba(4, 8, 25, 0.6));
+}
+
+.wheel-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.cell-glyph {
+  filter: drop-shadow(0 0 5px rgba(220, 235, 255, 0.9));
+}
+
+/* Указатель — голубой кристалл, смотрит вниз */
+.wheel-pointer {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  width: 34px;
+  height: 46px;
+  transform: translateX(-50%);
+  z-index: 6;
+  background: linear-gradient(180deg, #d6efff 0%, #8fc4f5 45%, #4f8bd8 75%, #315fb0 100%);
+  clip-path: polygon(50% 100%, 0 34%, 22% 8%, 50% 0, 78% 8%, 100% 34%);
+  filter: drop-shadow(0 4px 12px rgba(90, 160, 255, 0.8));
+}
+
+.wheel-pointer::after {
+  content: '';
+  position: absolute;
+  inset: 4px 8px auto 8px;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), transparent);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+
+/* Кнопка вращения */
+.wheel-spin-button {
+  min-width: 280px;
+  background: linear-gradient(135deg, #ffe6a0, #e0a94e);
+  color: #241a08;
+  border: none;
+  padding: 0.95rem 2.2rem;
+  border-radius: 999px;
+  font-family: 'Neucha', cursive;
+  font-size: 1.3rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 28px rgba(243, 212, 136, 0.4);
+  animation: spin-button-pulse 2.4s ease-in-out infinite;
+}
+
+.wheel-spin-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 34px rgba(243, 212, 136, 0.55);
+}
+
+.wheel-spin-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+  animation: none;
+  box-shadow: none;
+}
+
+@keyframes spin-button-pulse {
+  0%, 100% { box-shadow: 0 8px 28px rgba(243, 212, 136, 0.3); }
+  50% { box-shadow: 0 8px 36px rgba(243, 212, 136, 0.6); }
+}
+
+.wheel-balance {
+  color: #cdd6f4;
+  font-family: 'Neucha', cursive;
+  font-size: 1.05rem;
+}
+
+.wheel-balance strong {
+  color: #f3d488;
+  font-size: 1.25rem;
+}
+
+/* ===== Нижний блок ===== */
+.wheel-info {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr;
+  gap: 1.6rem;
+  align-items: stretch;
+  width: 100%;
+  margin-top: 2.4rem;
+}
+
+/* ---- Легенда редкостей ---- */
+.wheel-legend {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.1rem;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.legend-badge {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(10, 18, 44, 0.7);
+  border: 1px solid rgba(243, 212, 136, 0.25);
+}
+
+.legend-icon-svg {
+  width: 34px;
+  height: 34px;
+}
+
+.legend-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.legend-label {
+  color: #f3e6c4;
+  font-family: 'Neucha', cursive;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legend-count {
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+}
+
+/* ---- Панель билетов ---- */
+.wheel-tickets {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  background: rgba(12, 22, 54, 0.7);
+  border: 1px solid rgba(243, 212, 136, 0.3);
+  border-radius: 18px;
+  padding: 1.4rem 1.6rem;
+}
+
+.wheel-tickets-copy {
+  flex: 1;
+}
+
+.wheel-panel-title {
+  font-family: 'Neucha', cursive;
+  color: #f3d488;
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 0.6rem;
+}
+
+.wheel-tickets-hint {
+  color: #a8b4e0;
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ---- Наборы билетов ---- */
+.wheel-packs {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.9rem;
+}
+
+.wheel-pack {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: 'Neucha', cursive;
+  transition: transform 0.2s ease;
+}
+
+.wheel-pack:hover {
+  transform: translateX(3px);
+}
+
+.wheel-pack-label {
+  color: #f3e6c4;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.wheel-pack-price {
+  margin-left: auto;
+  color: #f3d488;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* стопки для наборов 5 и 10 */
+.stub-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.stub-wrap.stack-1::before,
+.stub-wrap.stack-2::before,
+.stub-wrap.stack-2::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  border: 2px solid #c9a05a;
+  background: #0c1636;
+  z-index: -1;
+}
+
+.stub-wrap.stack-1::before { transform: translate(4px, 4px); }
+.stub-wrap.stack-2::before { transform: translate(4px, 4px); }
+.stub-wrap.stack-2::after { transform: translate(8px, 8px); z-index: -2; }
+
+/* ===== Билет ===== */
+.ticket {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, #14244e, #0b1533);
+  border: 2px solid #e0b264;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(243, 212, 136, 0.3);
+}
+
+.ticket-star {
+  width: 30px;
+  height: 30px;
+  filter: drop-shadow(0 0 6px rgba(243, 212, 136, 0.6));
+}
+
+.ticket-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  color: #f6dfa0;
+  font-family: 'Neucha', cursive;
+}
+
+/* корешок набора */
+.ticket-stub {
+  width: 64px;
+  height: 44px;
+}
+
+.ticket-stub .ticket-star {
+  width: 22px;
+  height: 22px;
+}
+
+.ticket-perf {
+  position: absolute;
+  left: 15px;
+  top: 6px;
+  bottom: 6px;
+  width: 0;
+  border-left: 2px dashed rgba(243, 212, 136, 0.5);
+}
+
+/* большая плашка «Билет на вращение» */
+.ticket-plaque {
+  width: 190px;
+  height: 116px;
+  border-width: 3px;
+  border-radius: 14px;
+  box-shadow:
+    inset 0 0 0 1px rgba(243, 212, 136, 0.5),
+    inset 0 0 0 6px rgba(11, 21, 51, 1),
+    inset 0 0 0 7px rgba(243, 212, 136, 0.25),
+    0 6px 22px rgba(4, 8, 25, 0.5);
+  background:
+    radial-gradient(circle at 50% 45%, rgba(243, 212, 136, 0.08), transparent 60%),
+    linear-gradient(160deg, #16264f, #0b1533);
+}
+
+.ticket-plaque .ticket-star {
+  width: 48px;
+  height: 48px;
+}
+
+.ticket-top {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.ticket-bottom {
+  font-size: 0.82rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #cdb87e;
+}
+
+/* ===== Баннер правила ===== */
+.wheel-rule-banner {
+  margin-top: 2rem;
+  text-align: center;
+  color: #f6dfa0;
+  font-family: 'Neucha', cursive;
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0.7rem 2.4rem;
+  border: 1px solid rgba(243, 212, 136, 0.4);
+  border-radius: 999px;
+  background: rgba(243, 212, 136, 0.06);
+  box-shadow: 0 0 24px rgba(243, 212, 136, 0.1);
+}
+
+/* ===== Модалки ===== */
+.wheel-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(4, 8, 25, 0.74);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: modal-fade 0.25s ease-out;
+}
+
+@keyframes modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.wheel-modal {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: linear-gradient(180deg, rgba(24, 34, 74, 0.98), rgba(12, 20, 48, 0.98));
+  border: 1px solid rgba(243, 212, 136, 0.35);
+  border-radius: 22px;
+  padding: 2rem 1.8rem;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(3, 6, 18, 0.7);
+  animation: modal-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+.wheel-modal.legendary {
+  border-color: rgba(255, 223, 142, 0.7);
+  box-shadow: 0 20px 60px rgba(3, 6, 18, 0.7), 0 0 60px rgba(255, 223, 142, 0.3);
+}
+
+@keyframes modal-pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.legendary-rays {
+  position: absolute;
+  inset: -30%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 42%,
+    rgba(255, 223, 142, 0.14) 0deg 8deg,
+    transparent 8deg 18deg
+  );
+  animation: rays-spin 14s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rays-spin {
+  to { transform: rotate(360deg); }
+}
+
+.wheel-modal-eyebrow {
+  position: relative;
+  color: #f3d488;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.wheel-modal-title {
+  position: relative;
+  color: #fdf3d7;
+  font-family: 'Neucha', cursive;
+  font-size: 1.9rem;
+  margin: 0 0 1.2rem;
+}
+
+.wheel-modal-text {
+  color: #a8b4e0;
+  font-family: 'Neucha', cursive;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin: 0 0 1.4rem;
+}
+
+.wheel-prize {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.6rem;
+}
+
+.wheel-prize-visual {
+  animation: prize-float 3s ease-in-out infinite;
+}
+
+@keyframes prize-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.wheel-prize-name {
+  color: #fff;
+  font-family: 'Neucha', cursive;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.wheel-prize-rarity {
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  color: #f3d488;
+}
+
+.wheel-prize.constellation .wheel-prize-rarity { color: #7fa0e6; }
+.wheel-prize.distant .wheel-prize-rarity { color: #5cc0d6; }
+.wheel-prize.guiding .wheel-prize-rarity { color: #b28ce0; }
+
+.wheel-modal-actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.wheel-modal-close {
+  background: rgba(243, 212, 136, 0.12);
+  color: #f3d488;
+  border: 1px solid rgba(243, 212, 136, 0.45);
+  padding: 0.7rem 1.5rem;
+  border-radius: 12px;
+  font-family: 'Neucha', cursive;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wheel-modal-close:hover {
+  background: rgba(243, 212, 136, 0.2);
+}
+
+.wheel-modal-close.primary {
+  background: linear-gradient(135deg, #f3d488, #e0a95e);
+  color: #241a08;
+  border: none;
+  font-weight: 700;
+}
+
+.modal-packs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.wheel-modal-balance {
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+/* ===== Адаптив ===== */
+@media (max-width: 860px) {
+  .wheel-info {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+    max-width: 460px;
+  }
+
+  .wheel-tickets {
+    justify-content: space-between;
+  }
+
+  .wheel-title {
+    font-size: 2.2rem;
+    letter-spacing: 1.5px;
+  }
+}

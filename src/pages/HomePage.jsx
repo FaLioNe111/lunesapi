@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import nightScene from '../assets/night-scene.png';
+import nightScene from '../assets/night-scene.webp';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../style/index.css';

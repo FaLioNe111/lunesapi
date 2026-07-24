@@ -1,0 +1,98 @@
+[
+  {
+    "tier": "crown",
+    "variant": "sun"
+  },
+  {
+    "tier": "guiding",
+    "angle": 18.1
+  },
+  {
+    "tier": "guiding",
+    "angle": 32.7
+  },
+  {
+    "tier": "constellation",
+    "angle": 47.8
+  },
+  {
+    "tier": "constellation",
+    "angle": 61.5
+  },
+  {
+    "tier": "constellation",
+    "angle": 75.6
+  },
+  {
+    "tier": "constellation",
+    "angle": 90.5
+  },
+  {
+    "tier": "distant",
+    "angle": 106
+  },
+  {
+    "tier": "distant",
+    "angle": 121.1
+  },
+  {
+    "tier": "distant",
+    "angle": 135.8
+  },
+  {
+    "tier": "distant",
+    "angle": 150.3
+  },
+  {
+    "tier": "distant",
+    "angle": 162.2
+  },
+  {
+    "tier": "crown",
+    "variant": "moon"
+  },
+  {
+    "tier": "distant",
+    "angle": 199.1
+  },
+  {
+    "tier": "distant",
+    "angle": 211.2
+  },
+  {
+    "tier": "distant",
+    "angle": 224.9
+  },
+  {
+    "tier": "distant",
+    "angle": 239
+  },
+  {
+    "tier": "distant",
+    "angle": 254.1
+  },
+  {
+    "tier": "constellation",
+    "angle": 269.5
+  },
+  {
+    "tier": "constellation",
+    "angle": 284.3
+  },
+  {
+    "tier": "constellation",
+    "angle": 298.6
+  },
+  {
+    "tier": "constellation",
+    "angle": 312.7
+  },
+  {
+    "tier": "guiding",
+    "angle": 328.1
+  },
+  {
+    "tier": "guiding",
+    "angle": 342.5
+  }
+]

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
+import { parseGiftToken } from '../data/gift';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import StarAvatar from '../components/StarAvatar';
@@ -25,14 +26,19 @@ import '../style/GiftPage.css';
 const BURST_ANGLES = [0, 36, 72, 108, 144, 180, 216, 252, 288, 324];
 
 const GiftPage = () => {
-  const { cartId } = useParams();
+  /* В адресе лежит длинный непрозрачный токен: /gift/<token>.
+     Старые короткие ссылки вида /gift/star-guiding-1?to=… тоже открываются. */
+  const { cartId: routeParam } = useParams();
   const [searchParams] = useSearchParams();
 
-  /* данные подарка из ссылки; n — имя, которое покупатель дал безымянной */
-  const to = searchParams.get('to') || '';
-  const from = searchParams.get('from') || '';
-  const message = searchParams.get('m') || '';
-  const customName = searchParams.get('n') || '';
+  const token = parseGiftToken(routeParam);
+  const cartId = token ? token.cartId : routeParam;
+
+  /* данные подарка; n — имя, которое покупатель дал безымянной */
+  const to = token ? token.to : searchParams.get('to') || '';
+  const from = token ? token.from : searchParams.get('from') || '';
+  const message = token ? token.message : searchParams.get('m') || '';
+  const customName = token ? token.name : searchParams.get('n') || '';
 
   /* undefined — загрузка; null — не нашли; объект — готово */
   const [data, setData] = useState(undefined);

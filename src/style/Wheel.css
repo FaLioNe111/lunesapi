@@ -1,0 +1,751 @@
+/* ===== Рулетка звёзд (лента, как в кейсах) ===== */
+
+.roulette-root {
+  background:
+    radial-gradient(circle at 50% 22%, #1b2c60 0%, #0d1740 45%, #070d24 100%) !important;
+}
+
+.roulette-page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: calc(var(--header-h) + 2.5rem) 1.5rem 4rem;
+  flex: 1;
+}
+
+/* ===== Заголовок ===== */
+.roulette-hero {
+  text-align: center;
+  margin-bottom: 2.2rem;
+}
+
+.hero-rule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  margin-bottom: 0.7rem;
+}
+
+.hero-rule-line {
+  width: 90px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(243, 212, 136, 0.7));
+}
+
+.hero-rule-line:last-child {
+  background: linear-gradient(270deg, transparent, rgba(243, 212, 136, 0.7));
+}
+
+.hero-rule-star {
+  color: #f3d488;
+  font-size: 0.9rem;
+  text-shadow: 0 0 12px rgba(243, 212, 136, 0.9);
+}
+
+.roulette-title {
+  font-family: 'Neucha', cursive;
+  color: #f3d488;
+  font-size: 3.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 0;
+  background: linear-gradient(180deg, #fff3cf 20%, #e0a94e 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 26px rgba(243, 212, 136, 0.35));
+}
+
+.roulette-sub {
+  color: #a8b4e0;
+  font-family: 'Neucha', cursive;
+  font-size: 1.12rem;
+  max-width: 520px;
+  margin: 0.7rem auto 0;
+  line-height: 1.55;
+}
+
+/* ===== Витрина ленты ===== */
+.roulette-box {
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(96, 116, 220, 0.18), transparent 60%),
+    linear-gradient(180deg, rgba(20, 32, 72, 0.9), rgba(9, 16, 42, 0.92));
+  border: 1px solid rgba(243, 212, 136, 0.22);
+  border-radius: 22px;
+  padding: 1.6rem;
+  box-shadow:
+    0 22px 60px rgba(4, 8, 25, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* золотые уголки витрины */
+.box-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(243, 212, 136, 0.65);
+  pointer-events: none;
+}
+
+.box-corner.tl { top: 10px; left: 10px; border-right: 0; border-bottom: 0; border-radius: 8px 0 0 0; }
+.box-corner.tr { top: 10px; right: 10px; border-left: 0; border-bottom: 0; border-radius: 0 8px 0 0; }
+.box-corner.bl { bottom: 10px; left: 10px; border-right: 0; border-top: 0; border-radius: 0 0 0 8px; }
+.box-corner.br { bottom: 10px; right: 10px; border-left: 0; border-top: 0; border-radius: 0 0 8px 0; }
+
+.roulette-viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #060c22 0%, #0a1435 50%, #060c22 100%);
+  border: 1px solid rgba(150, 170, 255, 0.16);
+  padding: 1.4rem 0 1.2rem;
+  box-shadow: inset 0 8px 30px rgba(0, 0, 0, 0.55);
+}
+
+/* звёздная пыль внутри витрины */
+.viewport-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1px 1px at 30px 40px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 140px 90px, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1.5px 1.5px at 220px 30px, rgba(255, 233, 168, 0.6), transparent),
+    radial-gradient(1px 1px at 320px 130px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 90px 160px, rgba(255, 255, 255, 0.35), transparent);
+  background-size: 380px 200px;
+}
+
+.roulette-track {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  will-change: transform;
+  z-index: 1;
+}
+
+/* ===== Карточка звезды ===== */
+.roulette-item {
+  position: relative;
+  flex: 0 0 150px;
+  width: 150px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 1rem 0.5rem 1rem;
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(28, 42, 88, 0.5), rgba(10, 18, 44, 0.8));
+  border: 1px solid rgba(150, 170, 255, 0.14);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+/* свечение редкости, поднимающееся снизу карточки */
+.item-glow {
+  position: absolute;
+  left: 50%;
+  bottom: -46%;
+  width: 150%;
+  height: 92%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+/* полоса редкости внизу */
+.item-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+}
+
+.roulette-item-visual {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.roulette-item-name {
+  position: relative;
+  z-index: 1;
+  color: #fdf3d7;
+  font-family: 'Neucha', cursive;
+  font-size: 1.08rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.15;
+  max-width: 100%;
+  padding: 0 0.2rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roulette-item-rarity {
+  position: relative;
+  z-index: 1;
+  font-family: 'Neucha', cursive;
+  font-size: 0.8rem;
+  letter-spacing: 0.4px;
+  opacity: 0.95;
+}
+
+/* ===== Цвета редкостей ===== */
+.roulette-item.rar-crown {
+  border-color: rgba(255, 207, 106, 0.55);
+  background: linear-gradient(180deg, rgba(74, 54, 14, 0.75), rgba(28, 24, 46, 0.9));
+}
+.rar-crown .item-glow { background: radial-gradient(circle, rgba(255, 207, 106, 0.95), transparent 68%); }
+.rar-crown .item-bar { background: linear-gradient(90deg, transparent, #ffcf6a, transparent); box-shadow: 0 0 14px #ffcf6a; }
+.rar-crown .roulette-item-rarity,
+.rar-crown .chance-label { color: #ffd782; }
+
+.roulette-item.rar-guiding {
+  border-color: rgba(185, 139, 255, 0.45);
+  background: linear-gradient(180deg, rgba(58, 32, 100, 0.75), rgba(20, 20, 52, 0.9));
+}
+.rar-guiding .item-glow { background: radial-gradient(circle, rgba(185, 139, 255, 0.85), transparent 68%); }
+.rar-guiding .item-bar { background: linear-gradient(90deg, transparent, #b98bff, transparent); box-shadow: 0 0 14px #b98bff; }
+.rar-guiding .roulette-item-rarity,
+.rar-guiding .chance-label { color: #d0b0ff; }
+
+.roulette-item.rar-constellation {
+  border-color: rgba(91, 141, 239, 0.4);
+  background: linear-gradient(180deg, rgba(26, 48, 108, 0.75), rgba(14, 22, 54, 0.9));
+}
+.rar-constellation .item-glow { background: radial-gradient(circle, rgba(91, 141, 239, 0.8), transparent 68%); }
+.rar-constellation .item-bar { background: linear-gradient(90deg, transparent, #5b8def, transparent); box-shadow: 0 0 14px #5b8def; }
+.rar-constellation .roulette-item-rarity,
+.rar-constellation .chance-label { color: #9dbcff; }
+
+.roulette-item.rar-distant {
+  border-color: rgba(84, 207, 224, 0.34);
+  background: linear-gradient(180deg, rgba(18, 62, 82, 0.7), rgba(11, 20, 48, 0.9));
+}
+.rar-distant .item-glow { background: radial-gradient(circle, rgba(84, 207, 224, 0.7), transparent 68%); }
+.rar-distant .item-bar { background: linear-gradient(90deg, transparent, #54cfe0, transparent); box-shadow: 0 0 14px #54cfe0; }
+.rar-distant .roulette-item-rarity,
+.rar-distant .chance-label { color: #8ce4f0; }
+
+/* выигравшая карточка */
+.roulette-item.landed {
+  transform: translateY(-6px) scale(1.04);
+  border-color: rgba(255, 233, 168, 0.9);
+  animation: landed-pulse 1.5s ease-in-out infinite;
+}
+
+.roulette-item.landed .item-glow {
+  opacity: 0.95;
+}
+
+@keyframes landed-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255, 233, 168, 0.6), 0 0 28px rgba(243, 212, 136, 0.45); }
+  50% { box-shadow: 0 0 0 1px rgba(255, 233, 168, 0.95), 0 0 48px rgba(243, 212, 136, 0.8); }
+}
+
+/* ===== Края и метка ===== */
+.roulette-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 130px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.roulette-fade.left {
+  left: 0;
+  background: linear-gradient(90deg, #060c22 5%, rgba(6, 12, 34, 0.85) 40%, transparent);
+}
+
+.roulette-fade.right {
+  right: 0;
+  background: linear-gradient(270deg, #060c22 5%, rgba(6, 12, 34, 0.85) 40%, transparent);
+}
+
+/* мягкий световой столб под меткой */
+.marker-beam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 168px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(243, 212, 136, 0.12) 45%, rgba(243, 212, 136, 0.12) 55%, transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.roulette-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(255, 233, 168, 0), #ffe9a8 18%, #ffe9a8 82%, rgba(255, 233, 168, 0));
+  box-shadow: 0 0 16px rgba(243, 212, 136, 0.95);
+  z-index: 4;
+}
+
+/* ромбы-указатели сверху и снизу */
+.roulette-marker::before,
+.roulette-marker::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 13px;
+  height: 13px;
+  background: linear-gradient(135deg, #fff3cf, #e0a94e);
+  transform: translateX(-50%) rotate(45deg);
+  box-shadow: 0 0 14px rgba(243, 212, 136, 0.9);
+  border-radius: 2px;
+}
+
+.roulette-marker::before { top: -6px; }
+.roulette-marker::after { bottom: -6px; }
+
+/* во время прокрутки метка светится сильнее */
+.roulette-viewport.is-spinning .roulette-marker {
+  animation: marker-flash 0.9s ease-in-out infinite;
+}
+
+@keyframes marker-flash {
+  0%, 100% { box-shadow: 0 0 16px rgba(243, 212, 136, 0.8); }
+  50% { box-shadow: 0 0 30px rgba(255, 233, 168, 1); }
+}
+
+/* ===== Управление ===== */
+.roulette-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 1.3rem;
+}
+
+.roulette-spin {
+  position: relative;
+  overflow: hidden;
+  min-width: 300px;
+  background: linear-gradient(135deg, #fff0c4, #e8b25c 55%, #d9973c);
+  color: #241a08;
+  border: none;
+  padding: 1rem 2.4rem;
+  border-radius: 999px;
+  font-family: 'Neucha', cursive;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow:
+    0 10px 30px rgba(243, 212, 136, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* блик, пробегающий по кнопке */
+.roulette-spin::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  left: -80px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  transform: skewX(-20deg);
+  animation: spin-shine 3.4s ease-in-out infinite;
+}
+
+@keyframes spin-shine {
+  0%, 65% { left: -80px; }
+  100% { left: 115%; }
+}
+
+.roulette-spin:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 38px rgba(243, 212, 136, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.roulette-spin:disabled {
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none;
+}
+
+.roulette-spin:disabled::after {
+  animation: none;
+  opacity: 0;
+}
+
+.roulette-balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #cdd6f4;
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  background: rgba(243, 212, 136, 0.07);
+  border: 1px solid rgba(243, 212, 136, 0.22);
+}
+
+.roulette-balance strong {
+  color: #f3d488;
+  font-size: 1.15rem;
+}
+
+/* ===== Панели: шансы и билеты ===== */
+.roulette-info {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 1.4rem;
+  margin-top: 1.8rem;
+}
+
+.roulette-panel {
+  background: linear-gradient(180deg, rgba(20, 32, 72, 0.85), rgba(10, 18, 46, 0.85));
+  border: 1px solid rgba(150, 170, 255, 0.16);
+  border-radius: 18px;
+  padding: 1.5rem 1.6rem;
+  box-shadow: 0 12px 34px rgba(4, 8, 25, 0.35);
+}
+
+.roulette-panel-title {
+  font-family: 'Neucha', cursive;
+  color: #f3d488;
+  font-size: 1.25rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 0 1.1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(243, 212, 136, 0.18);
+}
+
+/* строка шанса — с полоской заполнения */
+.chance-row {
+  position: relative;
+}
+
+.chance-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: rgba(150, 170, 255, 0.1);
+}
+
+.chance-row:last-child::after { display: none; }
+
+.roulette-panel-hint {
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  margin: 0 0 1.1rem;
+}
+
+/* ===== Гарант Луны ===== */
+.pity-panel {
+  border-color: rgba(190, 205, 240, 0.3);
+}
+
+.pity-counter {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+}
+
+.pity-left {
+  font-family: 'Neucha', cursive;
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #dfe9ff;
+  text-shadow: 0 0 24px rgba(190, 205, 240, 0.5);
+}
+
+.pity-left-label {
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  color: #8fa0d6;
+}
+
+.pity-bar {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(10, 18, 44, 0.8);
+  border: 1px solid rgba(190, 205, 240, 0.2);
+  overflow: hidden;
+}
+
+.pity-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6d86c8, #dfe9ff);
+  box-shadow: 0 0 14px rgba(190, 205, 240, 0.7);
+  transition: width 0.6s ease;
+}
+
+.pity-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+  color: #6f81b8;
+  font-family: 'Neucha', cursive;
+  font-size: 0.85rem;
+}
+
+/* наборы билетов */
+.ticket-packs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.ticket-pack {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(10, 18, 44, 0.6);
+  border: 1px solid rgba(168, 180, 224, 0.22);
+  border-radius: 12px;
+  padding: 0.7rem 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  font-family: 'Neucha', cursive;
+}
+
+.ticket-pack:hover {
+  border-color: rgba(243, 212, 136, 0.5);
+  transform: translateY(-1px);
+}
+
+.ticket-pack-img {
+  width: 54px;
+  height: auto;
+  flex-shrink: 0;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.45));
+  transition: transform 0.2s ease;
+}
+
+.ticket-pack:hover .ticket-pack-img {
+  transform: rotate(-6deg) scale(1.08);
+}
+
+.ticket-pack-amount {
+  color: #f3e6c4;
+  font-size: 1.05rem;
+}
+
+.ticket-pack-price {
+  margin-left: auto;
+  color: #f3d488;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+/* ===== Модалки ===== */
+.wheel-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(4, 8, 25, 0.74);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: modal-fade 0.25s ease-out;
+}
+
+@keyframes modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.wheel-modal {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: linear-gradient(180deg, rgba(24, 34, 74, 0.98), rgba(12, 20, 48, 0.98));
+  border: 1px solid rgba(243, 212, 136, 0.35);
+  border-radius: 22px;
+  padding: 2rem 1.8rem;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(3, 6, 18, 0.7);
+  animation: modal-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+.wheel-modal.legendary {
+  border-color: rgba(255, 223, 142, 0.7);
+  box-shadow: 0 20px 60px rgba(3, 6, 18, 0.7), 0 0 60px rgba(255, 223, 142, 0.3);
+}
+
+@keyframes modal-pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.legendary-rays {
+  position: absolute;
+  inset: -30%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 42%,
+    rgba(255, 223, 142, 0.14) 0deg 8deg,
+    transparent 8deg 18deg
+  );
+  animation: rays-spin 14s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rays-spin {
+  to { transform: rotate(360deg); }
+}
+
+.wheel-modal-eyebrow {
+  position: relative;
+  color: #f3d488;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.wheel-modal-title {
+  position: relative;
+  color: #fdf3d7;
+  font-family: 'Neucha', cursive;
+  font-size: 1.9rem;
+  margin: 0 0 1.2rem;
+}
+
+.wheel-modal-text {
+  color: #a8b4e0;
+  font-family: 'Neucha', cursive;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin: 0 0 1.4rem;
+}
+
+.wheel-prize {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.6rem;
+}
+
+.wheel-prize-visual {
+  animation: prize-float 3s ease-in-out infinite;
+}
+
+@keyframes prize-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.wheel-prize-name {
+  color: #fff;
+  font-family: 'Neucha', cursive;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.wheel-prize-rarity {
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  color: #f3d488;
+}
+
+.wheel-prize.constellation .wheel-prize-rarity { color: #8fb0f5; }
+.wheel-prize.distant .wheel-prize-rarity { color: #7fdcea; }
+.wheel-prize.guiding .wheel-prize-rarity { color: #c9a5ff; }
+
+.wheel-modal-actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.wheel-modal-close {
+  background: rgba(243, 212, 136, 0.12);
+  color: #f3d488;
+  border: 1px solid rgba(243, 212, 136, 0.45);
+  padding: 0.7rem 1.5rem;
+  border-radius: 12px;
+  font-family: 'Neucha', cursive;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wheel-modal-close:hover {
+  background: rgba(243, 212, 136, 0.2);
+}
+
+.wheel-modal-close.primary {
+  background: linear-gradient(135deg, #f3d488, #e0a95e);
+  color: #241a08;
+  border: none;
+  font-weight: 700;
+}
+
+.modal-packs {
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.wheel-modal-balance {
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+/* ===== Адаптив ===== */
+@media (max-width: 860px) {
+  .roulette-info {
+    grid-template-columns: 1fr;
+  }
+
+  .roulette-title {
+    font-size: 2.1rem;
+  }
+
+  .roulette-page {
+    padding: calc(var(--header-h) + 1.5rem) 1rem 3rem;
+  }
+
+  .roulette-box {
+    padding: 1rem 0.8rem;
+  }
+}

@@ -6,10 +6,21 @@ import StarAvatar from '../components/StarAvatar';
 import { RARITIES, normalizeRarity } from '../data/rarities';
 import { getCurrentUser, updateProfile, logout } from '../data/auth';
 import { fetchOrders } from '../data/orders';
-import { TOKEN_PACKS, getBalance, buyTokens, tokenWord } from '../data/tokens';
+import { TOKEN_PACKS, getBalance, buyTokens, ticketWord } from '../data/tokens';
+import { getWins } from '../data/wheel';
 import '../style/index.css';
 import '../style/Profile.css';
 import starryVideo from '../assets/stars.mp4';
+import ticketImg from '../assets/ticket.webp';
+import { makeGiftUrl } from '../data/gift';
+import {
+  fetchStarPrefs,
+  patchStar,
+  deleteStar,
+  applyStarPrefs,
+  canRename,
+} from '../data/stars';
+import QRCode from 'qrcode';
 
 /**
  * ===== Личный кабинет =====
@@ -23,7 +34,7 @@ import starryVideo from '../assets/stars.mp4';
 /* Вкладки кабинета */
 const PROFILE_TABS = [
   { id: 'stars', label: 'Мои звёзды' },
-  { id: 'tokens', label: 'Токены' },
+  { id: 'tokens', label: 'Билеты' },
   { id: 'orders', label: 'Заказы' },
   { id: 'settings', label: 'Настройки' },
 ];
@@ -76,18 +87,17 @@ const purchasedStars = [
   },
 ];
 
-/* Ссылка на праздничную страницу подарка — её и отправляют получателю.
-   TODO(backend): сервер должен выдавать короткий id подарка вместо параметров */
-const makeGiftLink = (cartId, giftedTo, fromName, message, starName) => {
-  const params = new URLSearchParams();
-  if (giftedTo) params.set('to', giftedTo);
-  if (fromName) params.set('from', fromName);
-  if (message) params.set('m', message);
-  /* имя, которое покупатель дал безымянной звезде */
-  if (starName) params.set('n', starName);
-  const qs = params.toString();
-  return `${window.location.origin}/gift/${cartId}${qs ? `?${qs}` : ''}`;
-};
+/* Ссылка на праздничную страницу подарка — её показывают QR-кодом.
+   Адрес намеренно длинный и непрозрачный: QR легко попадает в чужой кадр,
+   а по такому токену посторонний ничего не подберёт. */
+const makeGiftLink = (cartId, giftedTo, fromName, message, starName) =>
+  makeGiftUrl({
+    cartId,
+    to: giftedTo,
+    from: fromName,
+    message,
+    name: starName,
+  });
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -99,10 +109,49 @@ const ProfilePage = () => {
     () => searchParams.get('tab') || 'stars'
   );
   const [orders, setOrders] = useState([]);
+  const [wins, setWins] = useState([]);
   const [settingsForm, setSettingsForm] = useState(null);
   const [settingsSaved, setSettingsSaved] = useState(false);
   const [tokens, setTokens] = useState(0);
   const [boughtPack, setBoughtPack] = useState(null);
+  /* показ QR-кода подарка: { star, dataUrl } */
+  const [qr, setQr] = useState(null);
+  /* правки звёзд (скрытие, удаление, переименование) */
+  const [prefs, setPrefs] = useState({});
+  const [showHidden, setShowHidden] = useState(false);
+  /* окно настройки звезды и подтверждение удаления */
+  const [editing, setEditing] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+
+  /* Скрыть/показать звезду */
+  const toggleHidden = async (star) => {
+    setPrefs({ ...(await patchStar(star.id, { hidden: !star.hidden })) });
+  };
+
+  /* Удаление (мягкое: исходный заказ или выигрыш остаётся цел) */
+  const handleDelete = async (star) => {
+    setPrefs({ ...(await deleteStar(star.id)) });
+    setConfirmDelete(null);
+  };
+
+  /* Сохранение настроек звезды */
+  const handleSaveStar = async (e) => {
+    e.preventDefault();
+    const { id, name, giftedTo, giftMessage } = editing;
+    setPrefs({ ...(await patchStar(id, { name: name.trim(), giftedTo, giftMessage })) });
+    setEditing(null);
+  };
+
+  /* Рисуем QR прямо на клиенте — ссылка никуда не уходит */
+  const openQr = async (star) => {
+    const dataUrl = await QRCode.toDataURL(star.link, {
+      width: 640,
+      margin: 1,
+      errorCorrectionLevel: 'M',
+      color: { dark: '#0b1533', light: '#ffffff' },
+    });
+    setQr({ star, dataUrl });
+  };
 
   useEffect(() => {
     setTokens(getBalance());
@@ -134,12 +183,15 @@ const ProfilePage = () => {
 
     // История заказов, оформленных через корзину
     fetchOrders().then(setOrders);
+    // Звёзды, выигранные в рулетке
+    setWins(getWins());
+    // Пользовательские правки звёзд
+    fetchStarPrefs().then(setPrefs);
   }, [navigate]);
 
-  /* Полный список звёзд: демо + купленные через корзину.
-     У каждой — ссылка на праздничную страницу подарка */
-  const allStars = useMemo(() => {
-    const fromName = userData?.name || '';
+  /* Исходный список звёзд: выигрыши + заказы + демо.
+     id стабильный — по нему хранятся правки пользователя */
+  const rawStars = useMemo(() => {
     const fromOrders = orders.flatMap((order) =>
       order.items.map((it, idx) => ({
         id: `${order.number}-${idx}`,
@@ -154,16 +206,46 @@ const ProfilePage = () => {
         variant: it.variant,
         image: it.image,
         giftedTo: it.giftedTo,
-        link: makeGiftLink(it.cartId, it.giftedTo, fromName, order.giftMessage, it.name),
+        giftMessage: order.giftMessage,
         purchaseDate: order.date,
       }))
     );
-    const demo = purchasedStars.map((s) => ({
-      ...s,
-      link: makeGiftLink(s.cartId, s.giftedTo, fromName, s.giftMessage),
+    const demo = purchasedStars.map((s) => ({ ...s, id: `demo-${s.id}` }));
+    /* выигранные в рулетке — свежие сверху */
+    const fromWins = wins.map((w) => ({
+      id: w.cartId,
+      cartId: w.cartId,
+      name: w.name,
+      constellation: w.system || w.constellation || 'Рулетка звёзд',
+      rarity: normalizeRarity(w.rarity),
+      face: w.face,
+      decor: w.decor,
+      color: w.color,
+      variant: w.variant,
+      image: w.image,
+      giftedTo: '',
+      giftMessage: '',
+      purchaseDate: w.wonAt,
+      won: true,
     }));
-    return [...fromOrders, ...demo];
-  }, [orders, userData]);
+    return [...fromWins, ...fromOrders, ...demo];
+  }, [orders, wins]);
+
+  /* Правки пользователя поверх исходных данных, затем — ссылка на подарок:
+     переименовал звезду — новое имя уедет и в подарок */
+  const allStars = useMemo(() => {
+    const fromName = userData?.name || '';
+    return applyStarPrefs(rawStars, prefs, showHidden).map((s) => ({
+      ...s,
+      link: makeGiftLink(s.cartId, s.giftedTo, fromName, s.giftMessage, s.name),
+    }));
+  }, [rawStars, prefs, showHidden, userData]);
+
+  /* сколько сейчас скрыто — для переключателя */
+  const hiddenCount = useMemo(
+    () => rawStars.filter((s) => prefs[s.id]?.hidden && !prefs[s.id]?.deleted).length,
+    [rawStars, prefs]
+  );
 
   /* Статистика для верхней панели кабинета */
   const stats = useMemo(() => {
@@ -272,7 +354,7 @@ const ProfilePage = () => {
             </div>
             <div className="stat-card">
               <span className="stat-value">{tokens}</span>
-              <span className="stat-label">{tokenWord(tokens)} для рулетки</span>
+              <span className="stat-label">{ticketWord(tokens)} для колеса</span>
             </div>
           </div>
 
@@ -292,7 +374,19 @@ const ProfilePage = () => {
           {/* ===== Вкладка «Мои звёзды» ===== */}
           {activeTab === 'stars' && (
             <div className="profile-section">
-              <h2 className="section-title">Мои звёзды ({allStars.length})</h2>
+              <div className="stars-toolbar">
+                <h2 className="section-title">Мои звёзды ({allStars.length})</h2>
+                {hiddenCount > 0 && (
+                  <label className="hidden-toggle">
+                    <input
+                      type="checkbox"
+                      checked={showHidden}
+                      onChange={(e) => setShowHidden(e.target.checked)}
+                    />
+                    <span>Показать скрытые ({hiddenCount})</span>
+                  </label>
+                )}
+              </div>
 
               {allStars.length === 0 ? (
                 <div className="no-stars">
@@ -307,7 +401,8 @@ const ProfilePage = () => {
               ) : (
                 <div className="stars-grid">
                   {allStars.map((star) => (
-                    <div key={star.id} className="star-card">
+                    <div key={star.id} className={`star-card ${star.hidden ? 'is-hidden' : ''}`}>
+                    {star.hidden && <span className="hidden-badge">Скрыта</span>}
                       <div className="star-header">
                         <div className="star-header-visual">
                           <StarAvatar
@@ -342,14 +437,12 @@ const ProfilePage = () => {
                       </div>
 
                       <div className="star-actions">
-                        <a
-                          href={star.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <button
+                          onClick={() => openQr(star)}
                           className="view-star-button"
                         >
-                          Открыть страницу подарка
-                        </a>
+                          Показать QR-код подарка
+                        </button>
                         <button
                           onClick={() => handleCopyLink(star.id, star.link)}
                           className="copy-link-button"
@@ -360,6 +453,33 @@ const ProfilePage = () => {
                             <span className="copy-text">Копировать ссылку для получателя</span>
                           )}
                         </button>
+
+                        {/* управление звездой */}
+                        <div className="star-manage">
+                          <button
+                            className="manage-button"
+                            onClick={() =>
+                              setEditing({
+                                id: star.id,
+                                name: star.name,
+                                giftedTo: star.giftedTo || '',
+                                giftMessage: star.giftMessage || '',
+                                renamable: canRename(star),
+                              })
+                            }
+                          >
+                            Настроить
+                          </button>
+                          <button className="manage-button" onClick={() => toggleHidden(star)}>
+                            {star.hidden ? 'Показать' : 'Скрыть'}
+                          </button>
+                          <button
+                            className="manage-button danger"
+                            onClick={() => setConfirmDelete(star)}
+                          >
+                            Удалить
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -368,33 +488,40 @@ const ProfilePage = () => {
             </div>
           )}
 
-          {/* ===== Вкладка «Токены» ===== */}
+          {/* ===== Вкладка «Билеты» ===== */}
           {activeTab === 'tokens' && (
             <div className="profile-section">
-              <h2 className="section-title">Токены</h2>
+              <h2 className="section-title">Билеты</h2>
 
               <div className="tokens-balance">
                 <span className="tokens-balance-value">{tokens}</span>
                 <span className="tokens-balance-label">
-                  {tokenWord(tokens)} на балансе
+                  {ticketWord(tokens)} на балансе
                 </span>
                 <p className="tokens-hint">
-                  За токены крутят рулетку — там выпадают звёзды, которые
+                  За билеты крутят колесо звёзд — там выпадают звёзды, которые
                   нельзя купить: Солнце и Луна.
                 </p>
+                <button
+                  className="browse-stars-button"
+                  onClick={() => navigate('/wheel')}
+                >
+                  К колесу звёзд
+                </button>
               </div>
 
               <div className="tokens-packs">
                 {TOKEN_PACKS.map((pack) => (
                   <div key={pack.id} className="token-pack">
+                    <img src={ticketImg} alt="" className="token-pack-img" draggable={false} />
                     <span className="token-pack-amount">
-                      {pack.amount} {tokenWord(pack.amount)}
+                      {pack.amount} {ticketWord(pack.amount)}
                     </span>
                     <span className="token-pack-price">
                       {pack.price.toLocaleString('ru-RU')} ₽
                     </span>
                     <span className="token-pack-each">
-                      {Math.round(pack.price / pack.amount)} ₽ за токен
+                      {Math.round(pack.price / pack.amount)} ₽ за билет
                     </span>
                     <button
                       className="browse-stars-button token-pack-button"
@@ -500,6 +627,136 @@ const ProfilePage = () => {
           )}
         </div>
       </div>
+
+      {/* ===== Настройка звезды ===== */}
+      {editing && (
+        <div className="qr-backdrop" onClick={() => setEditing(null)}>
+          <form
+            className="qr-modal star-edit"
+            onClick={(e) => e.stopPropagation()}
+            onSubmit={handleSaveStar}
+          >
+            <h3 className="qr-title">Настройка звезды</h3>
+
+            <label className="settings-field">
+              <span>Название</span>
+              <input
+                type="text"
+                value={editing.name}
+                disabled={!editing.renamable}
+                onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+              />
+            </label>
+            {!editing.renamable && (
+              <p className="edit-note">
+                У этой звезды историческое имя — его не меняют. Переименовать
+                можно выигранные в рулетке и безымянные звёзды.
+              </p>
+            )}
+
+            <label className="settings-field">
+              <span>Кому дарите</span>
+              <input
+                type="text"
+                value={editing.giftedTo}
+                placeholder="Имя получателя"
+                onChange={(e) => setEditing({ ...editing, giftedTo: e.target.value })}
+              />
+            </label>
+
+            <label className="settings-field">
+              <span>Пожелание</span>
+              <textarea
+                rows="3"
+                value={editing.giftMessage}
+                placeholder="Пусть эта звезда светит только тебе…"
+                onChange={(e) => setEditing({ ...editing, giftMessage: e.target.value })}
+              />
+            </label>
+
+            <div className="qr-actions">
+              <button type="submit" className="browse-stars-button">
+                Сохранить
+              </button>
+              <button
+                type="button"
+                className="copy-link-button"
+                onClick={() => setEditing(null)}
+              >
+                Отмена
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* ===== Подтверждение удаления ===== */}
+      {confirmDelete && (
+        <div className="qr-backdrop" onClick={() => setConfirmDelete(null)}>
+          <div className="qr-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="qr-title">Удалить «{confirmDelete.name}»?</h3>
+            <p className="qr-hint">
+              Звезда пропадёт из коллекции, а ссылка на подарок перестанет
+              где-либо показываться. Отменить это будет нельзя.
+            </p>
+            <div className="qr-actions">
+              <button
+                className="manage-button danger wide"
+                onClick={() => handleDelete(confirmDelete)}
+              >
+                Удалить
+              </button>
+              <button
+                className="copy-link-button"
+                onClick={() => setConfirmDelete(null)}
+              >
+                Оставить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== QR-код подарка ===== */}
+      {qr && (
+        <div className="qr-backdrop" onClick={() => setQr(null)}>
+          <div className="qr-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="qr-title">{qr.star.name}</h3>
+            <p className="qr-hint">
+              Покажите или отправьте этот код получателю — он откроет
+              страницу подарка.
+            </p>
+
+            <div className="qr-frame">
+              <img src={qr.dataUrl} alt="QR-код подарка" className="qr-img" />
+            </div>
+
+            <p className="qr-warning">
+              Код — это ключ к подарку. Не публикуйте его: кто отсканирует,
+              тот и откроет звезду.
+            </p>
+
+            <div className="qr-actions">
+              <a
+                href={qr.dataUrl}
+                download={`подарок-${qr.star.name}.png`}
+                className="browse-stars-button"
+              >
+                Скачать код
+              </a>
+              <button
+                className="copy-link-button"
+                onClick={() => handleCopyLink(qr.star.id, qr.star.link)}
+              >
+                {copiedId === qr.star.id ? '✓ Скопировано' : 'Копировать ссылку'}
+              </button>
+              <button className="copy-link-button" onClick={() => setQr(null)}>
+                Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <Footer />

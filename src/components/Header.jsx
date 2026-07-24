@@ -46,7 +46,7 @@ const Header = () => {
             Звезды
           </button>
           <button type="button" className="header-item" onClick={() => navigate('/wheel')}>
-            Колесо
+            Рулетка
           </button>
           {/* Корзина со счётчиком выбранных звёзд */}
           <button

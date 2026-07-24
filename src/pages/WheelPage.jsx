@@ -1,15 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import StarAvatar from '../components/StarAvatar';
-import {
-  WHEEL_TIERS,
-  WHEEL_TIER_ORDER,
-  rollWheel,
-  makePrize,
-  recordWin,
-} from '../data/wheel';
+import { WHEEL_TIERS, PITY_TARGET, spin, fetchReel, fetchPity } from '../data/wheel';
 import {
   TOKEN_PACKS,
   getBalance,
@@ -17,68 +11,38 @@ import {
   spendToken,
   ticketWord,
 } from '../data/tokens';
-import segmentsImg from '../assets/wheel/segments.webp';
-import frameImg from '../assets/wheel/frame.webp';
-import pointerImg from '../assets/wheel/pointer.webp';
 import '../style/index.css';
 import '../style/Stars.css';
 import '../style/Wheel.css';
 
-/* ===== Тайминги анимации ===== */
-const WINDUP_MS = 850;   // Солнце и Луна уходят из вертикали в горизонталь
-const PAUSE_MS = 200;    // короткая пауза перед раскруткой
-const SPIN_MS = 4800;    // сам прокрут
-const TURNS = 6;         // полных оборотов
+/* ===== Геометрия ленты ===== */
+const CARD_W = 150;      // ширина карточки, px
+const GAP = 10;          // зазор между карточками, px
+const STEP = CARD_W + GAP;
 
-/* ===== Иконки легенды ===== */
-const LegendIcon = ({ tier }) => {
-  const t = WHEEL_TIERS[tier];
-  if (tier === 'crown') {
-    return (
-      <svg viewBox="0 0 40 40" className="legend-icon-svg">
-        <g transform="translate(20 20)">
-          {Array.from({ length: 12 }, (_, i) => (
-            <rect key={i} x="-1" y="-16" width="2" height="6" rx="1" fill={t.color} transform={`rotate(${i * 30})`} />
-          ))}
-          <circle r="9" fill={t.color} />
-          <circle cx="-3" cy="-1" r="1.3" fill="#2a1e08" />
-          <circle cx="3" cy="-1" r="1.3" fill="#2a1e08" />
-          <path d="M-3 3 A4 4 0 0 0 3 3" fill="none" stroke="#2a1e08" strokeWidth="1.4" strokeLinecap="round" />
-        </g>
-      </svg>
-    );
-  }
-  if (tier === 'distant') {
-    return (
-      <svg viewBox="0 0 40 40" className="legend-icon-svg">
-        <path transform="translate(20 20)" d="M0,-13 L2.6,-2.6 L13,0 L2.6,2.6 L0,13 L-2.6,2.6 L-13,0 L-2.6,-2.6 Z" fill={t.color} />
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 40 40" className="legend-icon-svg">
-      <g transform="translate(20 20)">
-        <ellipse rx="16" ry="5.5" fill="none" stroke={t.color} strokeWidth="2" transform="rotate(-22)" />
-        <circle r="8.5" fill={t.color} />
-        <circle r="8.5" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1" />
-      </g>
-    </svg>
-  );
-};
+/* ===== Тайминги ===== */
+const SPIN_MS = 6200;    // прокрутка
+const REVEAL_MS = 700;   // пауза перед показом модалки
 
 const WheelPage = () => {
   const navigate = useNavigate();
 
   const [balance, setBalance] = useState(0);
-  const [rotation, setRotation] = useState(0);
-  const [phase, setPhase] = useState('idle'); // idle | windup | spin
+  const [items, setItems] = useState([]);
+  const [offset, setOffset] = useState(0);
+  const [transition, setTransition] = useState('none');
+  const [spinning, setSpinning] = useState(false);
+  const [landedKey, setLandedKey] = useState(null);
   const [modal, setModal] = useState(null);
+  const [pity, setPity] = useState({ current: 0, target: PITY_TARGET });
 
-  const rotationRef = useRef(0);
+  const viewportRef = useRef(null);
   const timers = useRef([]);
 
   useEffect(() => {
     setBalance(getBalance());
+    fetchReel().then(setItems);
+    fetchPity().then(setPity);
     const onChange = (e) => setBalance(e.detail);
     window.addEventListener('tokens:change', onChange);
     const pending = timers.current;
@@ -88,16 +52,7 @@ const WheelPage = () => {
     };
   }, []);
 
-  const spinning = phase !== 'idle';
-
-  const rotorTransition =
-    phase === 'windup'
-      ? `transform ${WINDUP_MS}ms cubic-bezier(0.45, 0, 0.9, 0.55)`
-      : phase === 'spin'
-        ? `transform ${SPIN_MS}ms cubic-bezier(0.12, 0.7, 0.08, 1)`
-        : 'none';
-
-  const handleSpin = () => {
+  const handleSpin = async () => {
     if (spinning) return;
     if (getBalance() < 1) {
       setModal({ type: 'noTickets' });
@@ -106,41 +61,50 @@ const WheelPage = () => {
 
     spendToken(1);
     setBalance((b) => b - 1);
+    setSpinning(true);
+    setLandedKey(null);
 
-    const cell = rollWheel();
-    const R = rotationRef.current;
+    /* результат целиком приходит «с сервера»: лента, индекс, приз, гарант */
+    const res = await spin();
+    setItems(res.reel);
+    setPity(res.pity);
+    setTransition('none');
+    setOffset(0);
 
-    /* Фаза 1 — Солнце и Луна из вертикали в горизонталь */
-    let delta = (((90 - (R % 180)) % 180) + 180) % 180;
-    if (delta < 20) delta += 180;
-    const Rw = R + delta;
-    setPhase('windup');
-    setRotation(Rw);
-    rotationRef.current = Rw;
+    /* два кадра, чтобы сброс успел отрисоваться до запуска анимации */
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const vw = viewportRef.current?.offsetWidth || 0;
+        /* при near-miss смещаемся в сторону светила — оно замирает впритык */
+        const jitter =
+          res.nearMiss === 'left'
+            ? -CARD_W * 0.38
+            : res.nearMiss === 'right'
+              ? CARD_W * 0.38
+              : (Math.random() - 0.5) * (CARD_W * 0.5);
+        const target = res.winIndex * STEP + CARD_W / 2 - vw / 2 + jitter;
 
-    /* Фаза 2 — прокрут до выигрышной ячейки под указателем */
-    timers.current.push(
-      setTimeout(() => {
-        const base = Rw + TURNS * 360;
-        const landing = (((-cell.angle - base) % 360) + 360) % 360;
-        const Rf = base + landing;
-        setPhase('spin');
-        setRotation(Rf);
-        rotationRef.current = Rf;
+        setTransition(`transform ${SPIN_MS}ms cubic-bezier(0.08, 0.72, 0.06, 1)`);
+        setOffset(-target);
 
         timers.current.push(
           setTimeout(() => {
-            setPhase('idle');
-            const prize = makePrize(cell);
-            recordWin(prize);
-            setModal({
-              type: cell.tier === 'crown' ? 'legendary' : 'star',
-              prize,
-            });
-          }, SPIN_MS + 60)
+            setSpinning(false);
+            setLandedKey(`w-${res.winIndex}`);
+
+            timers.current.push(
+              setTimeout(() => {
+                setModal({
+                  type: res.prize.tier === 'crown' ? 'legendary' : 'star',
+                  prize: res.prize,
+                  guaranteed: res.guaranteed,
+                });
+              }, REVEAL_MS)
+            );
+          }, SPIN_MS + 40)
         );
-      }, WINDUP_MS + PAUSE_MS)
-    );
+      });
+    });
   };
 
   const handleBuy = async (pack) => {
@@ -148,97 +112,144 @@ const WheelPage = () => {
     setBalance(next);
   };
 
+  const left = Math.max(0, pity.target - pity.current);
+  const pityPercent = useMemo(
+    () => Math.min(100, Math.round((pity.current / pity.target) * 100)),
+    [pity]
+  );
+
   const packList = (extraClass = '') => (
-    <div className={`wheel-packs ${extraClass}`}>
-      {TOKEN_PACKS.slice(0, 3).map((pack, i) => (
-        <button key={pack.id} className="wheel-pack" onClick={() => handleBuy(pack)}>
-          <span className={`stub-wrap stack-${i}`}>
-            <Ticket stub />
+    <div className={`ticket-packs ${extraClass}`}>
+      {TOKEN_PACKS.slice(0, 3).map((pack) => (
+        <button key={pack.id} className="ticket-pack" onClick={() => handleBuy(pack)}>
+          <span className="ticket-pack-amount">
+            {pack.amount} {ticketWord(pack.amount)}
           </span>
-          <span className="wheel-pack-label">
-            {pack.amount} {ticketWord(pack.amount).toUpperCase()}
+          <span className="ticket-pack-price">
+            {pack.price.toLocaleString('ru-RU')} ₽
           </span>
-          <span className="wheel-pack-price">{pack.price.toLocaleString('ru-RU')} ₽</span>
         </button>
       ))}
     </div>
   );
 
   return (
-    <div className="stars-page-wrapper wheel-root">
+    <div className="stars-page-wrapper roulette-root">
       <Header />
 
-      <main className="wheel-page">
-        <section className="wheel-hero">
-          <h1 className="wheel-title">
-            <span className="ttl-spark">✦</span> Колесо звёзд{' '}
-            <span className="ttl-spark">✦</span>
-          </h1>
-          <p className="wheel-sub">
-            Крутите колесо и открывайте звёзды разных редкостей!
+      <div className="sky-layer far"></div>
+      <div className="sky-layer near"></div>
+      <div className="shooting-star s1"></div>
+      <div className="shooting-star s2"></div>
+
+      <main className="roulette-page">
+        <section className="roulette-hero">
+          <div className="hero-rule">
+            <span className="hero-rule-line"></span>
+            <span className="hero-rule-star">✦</span>
+            <span className="hero-rule-line"></span>
+          </div>
+          <h1 className="roulette-title">Рулетка звёзд</h1>
+          <p className="roulette-sub">
+            Один билет — одно вращение. Звезда, что остановится под меткой,
+            станет вашей.
           </p>
         </section>
 
-        {/* ===== Колесо ===== */}
-        <div className="wheel-stage">
-          <div className="wheel-frame">
+        {/* ===== Лента ===== */}
+        <div className="roulette-box">
+          <span className="box-corner tl" aria-hidden="true"></span>
+          <span className="box-corner tr" aria-hidden="true"></span>
+          <span className="box-corner bl" aria-hidden="true"></span>
+          <span className="box-corner br" aria-hidden="true"></span>
+
+          <div className={`roulette-viewport ${spinning ? 'is-spinning' : ''}`} ref={viewportRef}>
+            <div className="viewport-stars" aria-hidden="true"></div>
             <div
-              className="wheel-rotor"
-              style={{
-                transform: `rotate(${rotation}deg)`,
-                transition: rotorTransition,
-              }}
+              className="roulette-track"
+              style={{ transform: `translateX(${offset}px)`, transition }}
             >
-              <img src={segmentsImg} alt="" className="wheel-layer" draggable={false} />
-              <img src={frameImg} alt="" className="wheel-layer" draggable={false} />
+              {items.map((it) => (
+                <article
+                  key={it.key}
+                  className={`roulette-item rar-${it.tier} ${
+                    landedKey === it.key ? 'landed' : ''
+                  }`}
+                >
+                  <span className="item-glow" aria-hidden="true"></span>
+                  <div className="roulette-item-visual">
+                    <StarAvatar
+                      face={it.face}
+                      decor={it.decor}
+                      size={92}
+                      color={it.color}
+                      variant={it.variant}
+                      image={it.image}
+                    />
+                  </div>
+                  <div className="roulette-item-name">{it.name}</div>
+                  <div className="roulette-item-rarity">
+                    {WHEEL_TIERS[it.tier].label}
+                  </div>
+                  <span className="item-bar" aria-hidden="true"></span>
+                </article>
+              ))}
             </div>
-            <img src={pointerImg} alt="" className="wheel-pointer-img" draggable={false} />
+
+            {/* затемнение по краям и метка по центру */}
+            <div className="roulette-fade left" aria-hidden="true"></div>
+            <div className="roulette-fade right" aria-hidden="true"></div>
+            <div className="marker-beam" aria-hidden="true"></div>
+            <div className="roulette-marker" aria-hidden="true"></div>
           </div>
 
-          <button className="wheel-spin-button" onClick={handleSpin} disabled={spinning}>
-            {spinning ? 'Крутится…' : 'Крутить · 1 билет'}
-          </button>
-          <div className="wheel-balance">
-            У вас <strong>{balance}</strong> {ticketWord(balance)}
+          <div className="roulette-controls">
+            <button
+              className="roulette-spin"
+              onClick={handleSpin}
+              disabled={spinning}
+            >
+              {spinning ? 'Крутится…' : 'Крутить · 1 билет'}
+            </button>
+            <div className="roulette-balance">
+              У вас <strong>{balance}</strong> {ticketWord(balance)}
+            </div>
           </div>
         </div>
 
-        {/* ===== Нижний блок: редкости · билеты · наборы ===== */}
-        <div className="wheel-info">
-          <div className="wheel-legend">
-            {WHEEL_TIER_ORDER.map((t) => {
-              const tier = WHEEL_TIERS[t];
-              return (
-                <div key={t} className="legend-row">
-                  <span className="legend-badge" style={{ boxShadow: `0 0 16px ${tier.glow}` }}>
-                    <LegendIcon tier={t} />
-                  </span>
-                  <span className="legend-text">
-                    <span className="legend-label">{tier.label}</span>
-                    <span className="legend-count">{tier.cells} ячеек</span>
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+        {/* ===== Гарант и билеты ===== */}
+        <div className="roulette-info">
+          <div className="roulette-panel pity-panel">
+            <h2 className="roulette-panel-title">Гарант Луны</h2>
+            <p className="roulette-panel-hint">
+              Луна выпадает гарантированно на {pity.target}-й крутке. Если
+              светило попалось раньше — счётчик начинается заново.
+            </p>
 
-          <div className="wheel-tickets">
-            <div className="wheel-tickets-copy">
-              <h2 className="wheel-panel-title">
-                <span className="ttl-spark small">✦</span> Билеты{' '}
-                <span className="ttl-spark small">✦</span>
-              </h2>
-              <p className="wheel-tickets-hint">
-                Билеты нужны для вращения колеса звёзд.
-              </p>
+            <div className="pity-counter">
+              <span className="pity-left">{left}</span>
+              <span className="pity-left-label">
+                {left === 1 ? 'крутка' : left < 5 ? 'крутки' : 'круток'} до Луны
+              </span>
             </div>
-            <Ticket plaque />
+
+            <div className="pity-bar">
+              <span className="pity-bar-fill" style={{ width: `${pityPercent}%` }}></span>
+            </div>
+            <div className="pity-scale">
+              <span>{pity.current}</span>
+              <span>{pity.target}</span>
+            </div>
           </div>
 
-          {packList()}
+          <div className="roulette-panel">
+            <h2 className="roulette-panel-title">Билеты</h2>
+            <p className="roulette-panel-hint">
+              Билеты нужны для вращения рулетки. Один билет — одно вращение.
+            </p>
+            {packList()}
+          </div>
         </div>
-
-        <div className="wheel-rule-banner">1 БИЛЕТ = 1 ВРАЩЕНИЕ</div>
       </main>
 
       {/* ===== Модалки ===== */}
@@ -249,7 +260,7 @@ const WheelPage = () => {
               <>
                 <h3 className="wheel-modal-title">Не хватает билетов</h3>
                 <p className="wheel-modal-text">
-                  Чтобы крутить колесо, нужен хотя бы один билет. Возьмите набор —
+                  Чтобы крутить рулетку, нужен хотя бы один билет. Возьмите набор —
                   и звёзды ваши.
                 </p>
                 {packList('modal-packs')}
@@ -262,12 +273,20 @@ const WheelPage = () => {
               </>
             ) : (
               <>
-                {modal.type === 'legendary' && <div className="legendary-rays" aria-hidden="true"></div>}
+                {modal.type === 'legendary' && (
+                  <div className="legendary-rays" aria-hidden="true"></div>
+                )}
                 <div className="wheel-modal-eyebrow">
-                  {modal.type === 'legendary' ? 'Легендарная удача' : 'Ваш выигрыш'}
+                  {modal.guaranteed
+                    ? 'Гарант сработал'
+                    : modal.type === 'legendary'
+                      ? 'Легендарная удача'
+                      : 'Ваш выигрыш'}
                 </div>
                 <h3 className="wheel-modal-title">
-                  {modal.type === 'legendary' ? 'Вам выпала легендарка!' : 'Вам выпала звезда!'}
+                  {modal.type === 'legendary'
+                    ? 'Вам выпала легендарка!'
+                    : 'Вам выпала звезда!'}
                 </h3>
                 <div className={`wheel-prize ${modal.prize.tier}`}>
                   <div className="wheel-prize-visual">
@@ -281,7 +300,9 @@ const WheelPage = () => {
                     />
                   </div>
                   <div className="wheel-prize-name">{modal.prize.name}</div>
-                  <div className="wheel-prize-rarity">{WHEEL_TIERS[modal.prize.tier].label}</div>
+                  <div className="wheel-prize-rarity">
+                    {WHEEL_TIERS[modal.prize.tier].label}
+                  </div>
                 </div>
                 <div className="wheel-modal-actions">
                   <button
@@ -307,25 +328,5 @@ const WheelPage = () => {
     </div>
   );
 };
-
-/* ===== Билет (плашка «на вращение» или отрывной корешок) ===== */
-const Ticket = ({ plaque = false, stub = false }) => (
-  <span className={`ticket ${plaque ? 'ticket-plaque' : ''} ${stub ? 'ticket-stub' : ''}`}>
-    {stub && <span className="ticket-perf"></span>}
-    <span className="ticket-inner">
-      {plaque && <span className="ticket-top">Билет</span>}
-      <svg className="ticket-star" viewBox="0 0 120 120" aria-hidden="true">
-        <polygon
-          points="60,16 75,52 113,55 83,79 92,116 60,95 28,116 37,79 7,55 45,52"
-          fill="#f3d488"
-          stroke="#e0a94e"
-          strokeWidth="4"
-          strokeLinejoin="round"
-        />
-      </svg>
-      {plaque && <span className="ticket-bottom">на вращение</span>}
-    </span>
-  </span>
-);
 
 export default WheelPage;

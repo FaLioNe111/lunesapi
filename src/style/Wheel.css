@@ -1,402 +1,559 @@
-/* ===== Колесо звёзд ===== */
+/* ===== Рулетка звёзд (лента, как в кейсах) ===== */
 
-/* фон страницы — тёмно-синий радиальный, как на референсе */
-.wheel-root {
+.roulette-root {
   background:
-    radial-gradient(circle at 50% 30%, #1b2c60 0%, #0d1740 42%, #070d24 100%) !important;
+    radial-gradient(circle at 50% 22%, #1b2c60 0%, #0d1740 45%, #070d24 100%) !important;
 }
 
-.wheel-page {
+.roulette-page {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1080px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: calc(var(--header-h) + 2rem) 1.5rem 4rem;
+  padding: calc(var(--header-h) + 2.5rem) 1.5rem 4rem;
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 /* ===== Заголовок ===== */
-.wheel-hero {
+.roulette-hero {
   text-align: center;
-  margin-bottom: 1.6rem;
+  margin-bottom: 2.2rem;
 }
 
-.wheel-title {
-  font-family: 'Neucha', cursive;
-  color: #f3d488;
-  font-size: 3.2rem;
-  font-weight: 700;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin: 0;
-  text-shadow: 0 0 34px rgba(243, 212, 136, 0.45);
-}
-
-.ttl-spark {
-  color: #f3d488;
-  opacity: 0.85;
-  font-size: 0.7em;
-  vertical-align: middle;
-}
-
-.ttl-spark.small {
-  font-size: 0.9em;
-}
-
-.wheel-sub {
-  color: #b9c6ee;
-  font-family: 'Neucha', cursive;
-  font-size: 1.15rem;
-  margin: 0.5rem 0 0;
-}
-
-/* ===== Сцена с колесом ===== */
-.wheel-stage {
-  position: relative;
+.hero-rule {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1.3rem;
-}
-
-.wheel-frame {
-  position: relative;
-  width: min(620px, 92vw);
-  aspect-ratio: 1;
-  filter: drop-shadow(0 18px 50px rgba(4, 8, 25, 0.6));
-}
-
-/* вращающаяся часть: сегменты + рама со ступицей */
-.wheel-rotor {
-  position: absolute;
-  inset: 0;
-  will-change: transform;
-}
-
-.wheel-layer {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-/* Указатель — неподвижный кристалл сверху */
-/* размер 1:1 с макета (42px при ширине холста 1254), кончик — у обода */
-.wheel-pointer-img {
-  position: absolute;
-  top: 7.5%;
-  left: 50%;
-  width: 3.4%;
-  transform: translateX(-50%);
-  z-index: 6;
-  filter: drop-shadow(0 3px 10px rgba(90, 160, 255, 0.85));
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-/* Кнопка вращения */
-.wheel-spin-button {
-  min-width: 280px;
-  background: linear-gradient(135deg, #ffe6a0, #e0a94e);
-  color: #241a08;
-  border: none;
-  padding: 0.95rem 2.2rem;
-  border-radius: 999px;
-  font-family: 'Neucha', cursive;
-  font-size: 1.3rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 8px 28px rgba(243, 212, 136, 0.4);
-  animation: spin-button-pulse 2.4s ease-in-out infinite;
-}
-
-.wheel-spin-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 34px rgba(243, 212, 136, 0.55);
-}
-
-.wheel-spin-button:disabled {
-  opacity: 0.6;
-  cursor: default;
-  animation: none;
-  box-shadow: none;
-}
-
-@keyframes spin-button-pulse {
-  0%, 100% { box-shadow: 0 8px 28px rgba(243, 212, 136, 0.3); }
-  50% { box-shadow: 0 8px 36px rgba(243, 212, 136, 0.6); }
-}
-
-.wheel-balance {
-  color: #cdd6f4;
-  font-family: 'Neucha', cursive;
-  font-size: 1.05rem;
-}
-
-.wheel-balance strong {
-  color: #f3d488;
-  font-size: 1.25rem;
-}
-
-/* ===== Нижний блок ===== */
-.wheel-info {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr 1fr;
-  gap: 1.6rem;
-  align-items: stretch;
-  width: 100%;
-  margin-top: 2.4rem;
-}
-
-/* ---- Легенда редкостей ---- */
-.wheel-legend {
-  display: flex;
-  flex-direction: column;
   justify-content: center;
-  gap: 1.1rem;
-}
-
-.legend-row {
-  display: flex;
-  align-items: center;
   gap: 0.9rem;
+  margin-bottom: 0.7rem;
 }
 
-.legend-badge {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: rgba(10, 18, 44, 0.7);
-  border: 1px solid rgba(243, 212, 136, 0.25);
+.hero-rule-line {
+  width: 90px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(243, 212, 136, 0.7));
 }
 
-.legend-icon-svg {
-  width: 34px;
-  height: 34px;
+.hero-rule-line:last-child {
+  background: linear-gradient(270deg, transparent, rgba(243, 212, 136, 0.7));
 }
 
-.legend-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
+.hero-rule-star {
+  color: #f3d488;
+  font-size: 0.9rem;
+  text-shadow: 0 0 12px rgba(243, 212, 136, 0.9);
 }
 
-.legend-label {
-  color: #f3e6c4;
-  font-family: 'Neucha', cursive;
-  font-size: 1.15rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.legend-count {
-  color: #8fa0d6;
-  font-family: 'Neucha', cursive;
-  font-size: 0.95rem;
-}
-
-/* ---- Панель билетов ---- */
-.wheel-tickets {
-  display: flex;
-  align-items: center;
-  gap: 1.4rem;
-  background: rgba(12, 22, 54, 0.7);
-  border: 1px solid rgba(243, 212, 136, 0.3);
-  border-radius: 18px;
-  padding: 1.4rem 1.6rem;
-}
-
-.wheel-tickets-copy {
-  flex: 1;
-}
-
-.wheel-panel-title {
+.roulette-title {
   font-family: 'Neucha', cursive;
   color: #f3d488;
-  font-size: 1.4rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 0 0 0.6rem;
+  font-size: 3.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 0;
+  background: linear-gradient(180deg, #fff3cf 20%, #e0a94e 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 26px rgba(243, 212, 136, 0.35));
 }
 
-.wheel-tickets-hint {
+.roulette-sub {
   color: #a8b4e0;
   font-family: 'Neucha', cursive;
-  font-size: 1rem;
-  line-height: 1.5;
-  margin: 0;
+  font-size: 1.12rem;
+  max-width: 520px;
+  margin: 0.7rem auto 0;
+  line-height: 1.55;
 }
 
-/* ---- Наборы билетов ---- */
-.wheel-packs {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.9rem;
-}
-
-.wheel-pack {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  font-family: 'Neucha', cursive;
-  transition: transform 0.2s ease;
-}
-
-.wheel-pack:hover {
-  transform: translateX(3px);
-}
-
-.wheel-pack-label {
-  color: #f3e6c4;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-}
-
-.wheel-pack-price {
-  margin-left: auto;
-  color: #f3d488;
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-/* стопки для наборов 5 и 10 */
-.stub-wrap {
+/* ===== Витрина ленты ===== */
+.roulette-box {
   position: relative;
-  display: inline-flex;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(96, 116, 220, 0.18), transparent 60%),
+    linear-gradient(180deg, rgba(20, 32, 72, 0.9), rgba(9, 16, 42, 0.92));
+  border: 1px solid rgba(243, 212, 136, 0.22);
+  border-radius: 22px;
+  padding: 1.6rem;
+  box-shadow:
+    0 22px 60px rgba(4, 8, 25, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
-.stub-wrap.stack-1::before,
-.stub-wrap.stack-2::before,
-.stub-wrap.stack-2::after {
-  content: '';
+/* золотые уголки витрины */
+.box-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(243, 212, 136, 0.65);
+  pointer-events: none;
+}
+
+.box-corner.tl { top: 10px; left: 10px; border-right: 0; border-bottom: 0; border-radius: 8px 0 0 0; }
+.box-corner.tr { top: 10px; right: 10px; border-left: 0; border-bottom: 0; border-radius: 0 8px 0 0; }
+.box-corner.bl { bottom: 10px; left: 10px; border-right: 0; border-top: 0; border-radius: 0 0 0 8px; }
+.box-corner.br { bottom: 10px; right: 10px; border-left: 0; border-top: 0; border-radius: 0 0 8px 0; }
+
+.roulette-viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #060c22 0%, #0a1435 50%, #060c22 100%);
+  border: 1px solid rgba(150, 170, 255, 0.16);
+  padding: 1.4rem 0 1.2rem;
+  box-shadow: inset 0 8px 30px rgba(0, 0, 0, 0.55);
+}
+
+/* звёздная пыль внутри витрины */
+.viewport-stars {
   position: absolute;
   inset: 0;
-  border-radius: 8px;
-  border: 2px solid #c9a05a;
-  background: #0c1636;
-  z-index: -1;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1px 1px at 30px 40px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 140px 90px, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1.5px 1.5px at 220px 30px, rgba(255, 233, 168, 0.6), transparent),
+    radial-gradient(1px 1px at 320px 130px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 90px 160px, rgba(255, 255, 255, 0.35), transparent);
+  background-size: 380px 200px;
 }
 
-.stub-wrap.stack-1::before { transform: translate(4px, 4px); }
-.stub-wrap.stack-2::before { transform: translate(4px, 4px); }
-.stub-wrap.stack-2::after { transform: translate(8px, 8px); z-index: -2; }
-
-/* ===== Билет ===== */
-.ticket {
+.roulette-track {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(160deg, #14244e, #0b1533);
-  border: 2px solid #e0b264;
-  border-radius: 8px;
-  box-shadow: inset 0 0 0 1px rgba(243, 212, 136, 0.3);
+  display: flex;
+  gap: 10px;
+  will-change: transform;
+  z-index: 1;
 }
 
-.ticket-star {
-  width: 30px;
-  height: 30px;
-  filter: drop-shadow(0 0 6px rgba(243, 212, 136, 0.6));
-}
-
-.ticket-inner {
+/* ===== Карточка звезды ===== */
+.roulette-item {
+  position: relative;
+  flex: 0 0 150px;
+  width: 150px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.2rem;
-  color: #f6dfa0;
-  font-family: 'Neucha', cursive;
-}
-
-/* корешок набора */
-.ticket-stub {
-  width: 64px;
-  height: 44px;
-}
-
-.ticket-stub .ticket-star {
-  width: 22px;
-  height: 22px;
-}
-
-.ticket-perf {
-  position: absolute;
-  left: 15px;
-  top: 6px;
-  bottom: 6px;
-  width: 0;
-  border-left: 2px dashed rgba(243, 212, 136, 0.5);
-}
-
-/* большая плашка «Билет на вращение» */
-.ticket-plaque {
-  width: 190px;
-  height: 116px;
-  border-width: 3px;
+  padding: 1rem 0.5rem 1rem;
   border-radius: 14px;
-  box-shadow:
-    inset 0 0 0 1px rgba(243, 212, 136, 0.5),
-    inset 0 0 0 6px rgba(11, 21, 51, 1),
-    inset 0 0 0 7px rgba(243, 212, 136, 0.25),
-    0 6px 22px rgba(4, 8, 25, 0.5);
-  background:
-    radial-gradient(circle at 50% 45%, rgba(243, 212, 136, 0.08), transparent 60%),
-    linear-gradient(160deg, #16264f, #0b1533);
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(28, 42, 88, 0.5), rgba(10, 18, 44, 0.8));
+  border: 1px solid rgba(150, 170, 255, 0.14);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-.ticket-plaque .ticket-star {
-  width: 48px;
-  height: 48px;
+/* свечение редкости, поднимающееся снизу карточки */
+.item-glow {
+  position: absolute;
+  left: 50%;
+  bottom: -46%;
+  width: 150%;
+  height: 92%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.55;
 }
 
-.ticket-top {
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 3px;
-  text-transform: uppercase;
+/* полоса редкости внизу */
+.item-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
 }
 
-.ticket-bottom {
-  font-size: 0.82rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #cdb87e;
+.roulette-item-visual {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
 }
 
-/* ===== Баннер правила ===== */
-.wheel-rule-banner {
-  margin-top: 2rem;
-  text-align: center;
-  color: #f6dfa0;
+.roulette-item-name {
+  position: relative;
+  z-index: 1;
+  color: #fdf3d7;
   font-family: 'Neucha', cursive;
-  font-size: 1.3rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 0.7rem 2.4rem;
-  border: 1px solid rgba(243, 212, 136, 0.4);
+  font-size: 1.08rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.15;
+  max-width: 100%;
+  padding: 0 0.2rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roulette-item-rarity {
+  position: relative;
+  z-index: 1;
+  font-family: 'Neucha', cursive;
+  font-size: 0.8rem;
+  letter-spacing: 0.4px;
+  opacity: 0.95;
+}
+
+/* ===== Цвета редкостей ===== */
+.roulette-item.rar-crown {
+  border-color: rgba(255, 207, 106, 0.55);
+  background: linear-gradient(180deg, rgba(74, 54, 14, 0.75), rgba(28, 24, 46, 0.9));
+}
+.rar-crown .item-glow { background: radial-gradient(circle, rgba(255, 207, 106, 0.95), transparent 68%); }
+.rar-crown .item-bar { background: linear-gradient(90deg, transparent, #ffcf6a, transparent); box-shadow: 0 0 14px #ffcf6a; }
+.rar-crown .roulette-item-rarity,
+.rar-crown .chance-label { color: #ffd782; }
+
+.roulette-item.rar-guiding {
+  border-color: rgba(185, 139, 255, 0.45);
+  background: linear-gradient(180deg, rgba(58, 32, 100, 0.75), rgba(20, 20, 52, 0.9));
+}
+.rar-guiding .item-glow { background: radial-gradient(circle, rgba(185, 139, 255, 0.85), transparent 68%); }
+.rar-guiding .item-bar { background: linear-gradient(90deg, transparent, #b98bff, transparent); box-shadow: 0 0 14px #b98bff; }
+.rar-guiding .roulette-item-rarity,
+.rar-guiding .chance-label { color: #d0b0ff; }
+
+.roulette-item.rar-constellation {
+  border-color: rgba(91, 141, 239, 0.4);
+  background: linear-gradient(180deg, rgba(26, 48, 108, 0.75), rgba(14, 22, 54, 0.9));
+}
+.rar-constellation .item-glow { background: radial-gradient(circle, rgba(91, 141, 239, 0.8), transparent 68%); }
+.rar-constellation .item-bar { background: linear-gradient(90deg, transparent, #5b8def, transparent); box-shadow: 0 0 14px #5b8def; }
+.rar-constellation .roulette-item-rarity,
+.rar-constellation .chance-label { color: #9dbcff; }
+
+.roulette-item.rar-distant {
+  border-color: rgba(84, 207, 224, 0.34);
+  background: linear-gradient(180deg, rgba(18, 62, 82, 0.7), rgba(11, 20, 48, 0.9));
+}
+.rar-distant .item-glow { background: radial-gradient(circle, rgba(84, 207, 224, 0.7), transparent 68%); }
+.rar-distant .item-bar { background: linear-gradient(90deg, transparent, #54cfe0, transparent); box-shadow: 0 0 14px #54cfe0; }
+.rar-distant .roulette-item-rarity,
+.rar-distant .chance-label { color: #8ce4f0; }
+
+/* выигравшая карточка */
+.roulette-item.landed {
+  transform: translateY(-6px) scale(1.04);
+  border-color: rgba(255, 233, 168, 0.9);
+  animation: landed-pulse 1.5s ease-in-out infinite;
+}
+
+.roulette-item.landed .item-glow {
+  opacity: 0.95;
+}
+
+@keyframes landed-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255, 233, 168, 0.6), 0 0 28px rgba(243, 212, 136, 0.45); }
+  50% { box-shadow: 0 0 0 1px rgba(255, 233, 168, 0.95), 0 0 48px rgba(243, 212, 136, 0.8); }
+}
+
+/* ===== Края и метка ===== */
+.roulette-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 130px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.roulette-fade.left {
+  left: 0;
+  background: linear-gradient(90deg, #060c22 5%, rgba(6, 12, 34, 0.85) 40%, transparent);
+}
+
+.roulette-fade.right {
+  right: 0;
+  background: linear-gradient(270deg, #060c22 5%, rgba(6, 12, 34, 0.85) 40%, transparent);
+}
+
+/* мягкий световой столб под меткой */
+.marker-beam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 168px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(243, 212, 136, 0.12) 45%, rgba(243, 212, 136, 0.12) 55%, transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.roulette-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(255, 233, 168, 0), #ffe9a8 18%, #ffe9a8 82%, rgba(255, 233, 168, 0));
+  box-shadow: 0 0 16px rgba(243, 212, 136, 0.95);
+  z-index: 4;
+}
+
+/* ромбы-указатели сверху и снизу */
+.roulette-marker::before,
+.roulette-marker::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 13px;
+  height: 13px;
+  background: linear-gradient(135deg, #fff3cf, #e0a94e);
+  transform: translateX(-50%) rotate(45deg);
+  box-shadow: 0 0 14px rgba(243, 212, 136, 0.9);
+  border-radius: 2px;
+}
+
+.roulette-marker::before { top: -6px; }
+.roulette-marker::after { bottom: -6px; }
+
+/* во время прокрутки метка светится сильнее */
+.roulette-viewport.is-spinning .roulette-marker {
+  animation: marker-flash 0.9s ease-in-out infinite;
+}
+
+@keyframes marker-flash {
+  0%, 100% { box-shadow: 0 0 16px rgba(243, 212, 136, 0.8); }
+  50% { box-shadow: 0 0 30px rgba(255, 233, 168, 1); }
+}
+
+/* ===== Управление ===== */
+.roulette-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 1.3rem;
+}
+
+.roulette-spin {
+  position: relative;
+  overflow: hidden;
+  min-width: 300px;
+  background: linear-gradient(135deg, #fff0c4, #e8b25c 55%, #d9973c);
+  color: #241a08;
+  border: none;
+  padding: 1rem 2.4rem;
   border-radius: 999px;
-  background: rgba(243, 212, 136, 0.06);
-  box-shadow: 0 0 24px rgba(243, 212, 136, 0.1);
+  font-family: 'Neucha', cursive;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow:
+    0 10px 30px rgba(243, 212, 136, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* блик, пробегающий по кнопке */
+.roulette-spin::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  left: -80px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  transform: skewX(-20deg);
+  animation: spin-shine 3.4s ease-in-out infinite;
+}
+
+@keyframes spin-shine {
+  0%, 65% { left: -80px; }
+  100% { left: 115%; }
+}
+
+.roulette-spin:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 14px 38px rgba(243, 212, 136, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.roulette-spin:disabled {
+  opacity: 0.55;
+  cursor: default;
+  box-shadow: none;
+}
+
+.roulette-spin:disabled::after {
+  animation: none;
+  opacity: 0;
+}
+
+.roulette-balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #cdd6f4;
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  background: rgba(243, 212, 136, 0.07);
+  border: 1px solid rgba(243, 212, 136, 0.22);
+}
+
+.roulette-balance strong {
+  color: #f3d488;
+  font-size: 1.15rem;
+}
+
+/* ===== Панели: шансы и билеты ===== */
+.roulette-info {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 1.4rem;
+  margin-top: 1.8rem;
+}
+
+.roulette-panel {
+  background: linear-gradient(180deg, rgba(20, 32, 72, 0.85), rgba(10, 18, 46, 0.85));
+  border: 1px solid rgba(150, 170, 255, 0.16);
+  border-radius: 18px;
+  padding: 1.5rem 1.6rem;
+  box-shadow: 0 12px 34px rgba(4, 8, 25, 0.35);
+}
+
+.roulette-panel-title {
+  font-family: 'Neucha', cursive;
+  color: #f3d488;
+  font-size: 1.25rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 0 1.1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(243, 212, 136, 0.18);
+}
+
+/* строка шанса — с полоской заполнения */
+.chance-row {
+  position: relative;
+}
+
+.chance-row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: rgba(150, 170, 255, 0.1);
+}
+
+.chance-row:last-child::after { display: none; }
+
+.roulette-panel-hint {
+  color: #8fa0d6;
+  font-family: 'Neucha', cursive;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  margin: 0 0 1.1rem;
+}
+
+/* ===== Гарант Луны ===== */
+.pity-panel {
+  border-color: rgba(190, 205, 240, 0.3);
+}
+
+.pity-counter {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+}
+
+.pity-left {
+  font-family: 'Neucha', cursive;
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #dfe9ff;
+  text-shadow: 0 0 24px rgba(190, 205, 240, 0.5);
+}
+
+.pity-left-label {
+  font-family: 'Neucha', cursive;
+  font-size: 1rem;
+  color: #8fa0d6;
+}
+
+.pity-bar {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(10, 18, 44, 0.8);
+  border: 1px solid rgba(190, 205, 240, 0.2);
+  overflow: hidden;
+}
+
+.pity-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6d86c8, #dfe9ff);
+  box-shadow: 0 0 14px rgba(190, 205, 240, 0.7);
+  transition: width 0.6s ease;
+}
+
+.pity-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+  color: #6f81b8;
+  font-family: 'Neucha', cursive;
+  font-size: 0.85rem;
+}
+
+/* наборы билетов */
+.ticket-packs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.ticket-pack {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(10, 18, 44, 0.6);
+  border: 1px solid rgba(168, 180, 224, 0.22);
+  border-radius: 12px;
+  padding: 0.7rem 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  font-family: 'Neucha', cursive;
+}
+
+.ticket-pack:hover {
+  border-color: rgba(243, 212, 136, 0.5);
+  transform: translateY(-1px);
+}
+
+.ticket-pack-amount {
+  color: #f3e6c4;
+  font-size: 1.05rem;
+}
+
+.ticket-pack-price {
+  margin-left: auto;
+  color: #f3d488;
+  font-size: 1.15rem;
+  font-weight: 700;
 }
 
 /* ===== Модалки ===== */
@@ -516,9 +673,9 @@
   color: #f3d488;
 }
 
-.wheel-prize.constellation .wheel-prize-rarity { color: #7fa0e6; }
-.wheel-prize.distant .wheel-prize-rarity { color: #5cc0d6; }
-.wheel-prize.guiding .wheel-prize-rarity { color: #b28ce0; }
+.wheel-prize.constellation .wheel-prize-rarity { color: #8fb0f5; }
+.wheel-prize.distant .wheel-prize-rarity { color: #7fdcea; }
+.wheel-prize.guiding .wheel-prize-rarity { color: #c9a5ff; }
 
 .wheel-modal-actions {
   display: flex;
@@ -551,9 +708,6 @@
 }
 
 .modal-packs {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
   margin-bottom: 1rem;
   text-align: left;
 }
@@ -567,18 +721,19 @@
 
 /* ===== Адаптив ===== */
 @media (max-width: 860px) {
-  .wheel-info {
+  .roulette-info {
     grid-template-columns: 1fr;
-    gap: 1.8rem;
-    max-width: 460px;
   }
 
-  .wheel-tickets {
-    justify-content: space-between;
+  .roulette-title {
+    font-size: 2.1rem;
   }
 
-  .wheel-title {
-    font-size: 2.2rem;
-    letter-spacing: 1.5px;
+  .roulette-page {
+    padding: calc(var(--header-h) + 1.5rem) 1rem 3rem;
+  }
+
+  .roulette-box {
+    padding: 1rem 0.8rem;
   }
 }

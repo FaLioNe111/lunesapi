@@ -1,175 +1,65 @@
 /**
- * ===== Колесо звёзд =====
+ * ===== Рулетка звёзд =====
  *
- * Раскладка колеса, тиры редкостей (адаптированы под редкости сайта),
- * логика розыгрыша и хранение выигранных звёзд.
+ * ВАЖНО ДЛЯ БЭКЕНДА.
+ * Фронт НЕ знает и не должен знать шансы выпадения. Он лишь вызывает spin()
+ * и рисует то, что пришло. Вся вероятностная логика, счётчик гаранта и
+ * начисление приза — на сервере.
  *
- * Ячейки — «посадочные места»: у каждой есть поле icon (ключ картинки).
- * Сейчас у Солнца/Луны стоят готовые тайлы, у остальных — null (рисуется
- * цветная заглушка). Позже сюда подставятся webp по созвездиям.
+ * Контракт (то, что нужно отдать с сервера):
+ *   POST /api/roulette/spin  →  {
+ *     reel:      [Item, ...],   // лента для прокрутки, чисто визуальная
+ *     winIndex:  number,        // индекс выигрышной карточки в reel
+ *     prize:     Item,          // приз (== reel[winIndex])
+ *     pity:      { current, target },  // прогресс до гаранта Луны
+ *     nearMiss:  'left' | 'right' | null // светило рядом с призом (для накала)
+ *   }
+ *   GET /api/roulette/reel   →  [Item, ...]   // лента для покоя
+ *   GET /api/me/stars        →  [Item, ...]   // выигранные звёзды
  *
- * TODO(backend): результат вращения должен приходить с сервера
- *                (честный рандом + защита), фронт только анимирует.
+ * Item = { cartId, rarity, tier, name, image, color, variant,
+ *          face, decor, constellation | system, wonAt }
+ *
+ * Ниже — временная заглушка сервера. При подключении бэкенда заменяется
+ * только этот файл, страницы трогать не нужно.
  */
 
 import { RARITIES } from './rarities';
 
-export const CELL_COUNT = 24;
-
-/* ===== Тиры колеса → редкости сайта =====
-   cells — сколько ячеек занимает тир, weight — шанс выпадения,
-   цвета взяты «под сайт», но с яркой заливкой сегментов колеса. */
+/* ===== Презентация: названия и цвета редкостей (нужны фронту для отрисовки) ===== */
 export const WHEEL_TIERS = {
   crown: {
     id: 'crown',
     rarityId: 'crown',
-    label: RARITIES.crown.label,        // Небесный Венец
-    cells: 2,
-    weight: 0.03,
-    color: '#ffe9a8',
-    color2: '#e7a23e',
-    glow: 'rgba(255, 223, 142, 0.7)',
+    label: RARITIES.crown.label,
+    color: '#ffcf6a',
   },
   guiding: {
     id: 'guiding',
     rarityId: 'guiding',
-    label: RARITIES.guiding.label,      // Путеводная
-    cells: 4,
-    weight: 0.12,
-    color: '#8a55c8',
-    color2: '#5b3499',
-    glow: 'rgba(160, 110, 230, 0.6)',
+    label: RARITIES.guiding.label,
+    color: '#b98bff',
   },
   constellation: {
     id: 'constellation',
     rarityId: 'constellation',
-    label: RARITIES.constellation.label, // Созвёздная
-    cells: 8,
-    weight: 0.25,
-    color: '#3f66c4',
-    color2: '#2c4a97',
-    glow: 'rgba(80, 130, 230, 0.6)',
+    label: RARITIES.constellation.label,
+    color: '#5b8def',
   },
   distant: {
     id: 'distant',
     rarityId: 'distant',
-    label: RARITIES.distant.label,       // Далёкая
-    cells: 10,
-    weight: 0.60,
-    color: '#37aecb',
-    color2: '#2183a6',
-    glow: 'rgba(84, 200, 224, 0.55)',
+    label: RARITIES.distant.label,
+    color: '#54cfe0',
   },
 };
 
-/* Порядок для легенды — от самого редкого к частому */
 export const WHEEL_TIER_ORDER = ['crown', 'guiding', 'constellation', 'distant'];
 
-/**
- * Раскладка ячеек по кругу (индекс 0 — сверху, далее по часовой стрелке).
- * Солнце — сверху (0), Луна — снизу (25). Тиры распределены симметрично:
- * эпические у полюсов, редкие ближе к низу.
- */
-/**
- * Раскладка соответствует отрисованному кольцу (src/assets/wheel/segments.webp):
- * ячейка 0 — Солнце сверху, ячейка 12 — Луна снизу, между ними по бортам
- * фиолетовые (Путеводные), синие (Созвёздные) и голубые (Далёкие) сегменты.
- * Порядок снят с самой графики, менять только вместе с картинкой.
- */
-const LAYOUT = [
-  'crown',                                            // 0  — Солнце
-  'guiding', 'guiding',                               // 1–2
-  'constellation', 'constellation', 'constellation', 'constellation', // 3–6
-  'distant', 'distant', 'distant', 'distant', 'distant',              // 7–11
-  'crown',                                            // 12 — Луна
-  'distant', 'distant', 'distant', 'distant', 'distant',              // 13–17
-  'constellation', 'constellation', 'constellation', 'constellation', // 18–21
-  'guiding', 'guiding',                               // 22–23
-];
+/* Сколько круток до гарантированной Луны (показываем игроку) */
+export const PITY_TARGET = 100;
 
-const buildLayout = () =>
-  LAYOUT.map((tier, i) => ({
-    index: i,
-    tier,
-    variant: i === 0 ? 'sun' : i === 12 ? 'moon' : null,
-    icon: i === 0 ? 'sun-1' : i === 12 ? 'moon-1' : null,
-    rarityId: WHEEL_TIERS[tier].rarityId,
-    angle: (i * 360) / CELL_COUNT, // центр ячейки, градусы по часовой от верха
-  }));
-
-export const WHEEL_CELLS = buildLayout();
-
-/* ===== Розыгрыш ===== */
-
-/* Имена для выигранных звёзд (кроме Солнца/Луны) */
-const WON_NAMES = [
-  'Аэлла', 'Сельмира', 'Вельот', 'Орамэль', 'Тэядия', 'Аринэя', 'Нолия',
-  'Стивия', 'Элирия', 'Каэра', 'Люна', 'Нэлла', 'Мивэль', 'Зонэя', 'Аридия',
-  'Юнамия', 'Сельста', 'Ильсия', 'Ноот', 'Вельрия', 'Милия', 'Аэвия',
-];
-
-/* Картинки-тайлы под тир (кроме Солнца/Луны — у них свои) */
-const TIER_TILES = {
-  guiding: Array.from({ length: 10 }, (_, i) => `guiding-${i + 1}`),
-  constellation: Array.from({ length: 28 }, (_, i) => `star-${i + 1}`),
-  distant: Array.from({ length: 28 }, (_, i) => `star-${i + 1}`),
-};
-
-const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-/**
- * Выбор выигрышной ячейки: сначала тир по весам, затем случайная ячейка тира.
- * Возвращает объект ячейки из WHEEL_CELLS.
- */
-export const rollWheel = () => {
-  const r = Math.random();
-  let acc = 0;
-  let chosen = 'distant';
-  for (const t of WHEEL_TIER_ORDER) {
-    acc += WHEEL_TIERS[t].weight;
-    if (r < acc) {
-      chosen = t;
-      break;
-    }
-  }
-  const pool = WHEEL_CELLS.filter((c) => c.tier === chosen);
-  return pick(pool);
-};
-
-/* Формирование приза (звезды) по выпавшей ячейке */
-export const makePrize = (cell) => {
-  const tier = WHEEL_TIERS[cell.tier];
-  const base = {
-    cartId: `won-${Date.now()}-${cell.index}`,
-    rarity: tier.rarityId,
-    tier: cell.tier,
-    face: 'joy',
-    decor: 'sparkles',
-    wonAt: new Date().toLocaleDateString('ru-RU'),
-  };
-
-  if (cell.tier === 'crown') {
-    return {
-      ...base,
-      variant: cell.variant,
-      name: cell.variant === 'sun' ? 'Солнце' : 'Луна',
-      system: 'Солнечная система',
-      color: cell.variant === 'sun' ? 'gold' : 'silver',
-      image: cell.icon,
-    };
-  }
-
-  return {
-    ...base,
-    variant: null,
-    name: pick(WON_NAMES),
-    constellation: 'Колесо звёзд',
-    color: tier.id === 'guiding' ? 'gold' : tier.id === 'constellation' ? 'blue' : 'cyan',
-    image: pick(TIER_TILES[cell.tier]),
-  };
-};
-
-/* ===== Хранение выигранных звёзд (мок) ===== */
+/* ===== Хранилище выигранных звёзд ===== */
 const WINS_KEY = 'wonStars';
 
 export const getWins = () => {
@@ -181,15 +71,172 @@ export const getWins = () => {
   }
 };
 
-/* Записать выигрыш; попадёт в личный кабинет.
-   TODO(backend): начисление приза на аккаунт делает сервер */
-export const recordWin = (prize) => {
+const recordWin = (prize) => {
   const wins = getWins();
   wins.unshift(prize);
   try {
     localStorage.setItem(WINS_KEY, JSON.stringify(wins));
   } catch {
-    /* хранилище недоступно — приз просто не сохранится в истории */
+    /* хранилище недоступно — приз не попадёт в историю */
   }
   return prize;
 };
+
+/* ==========================================================================
+ * НИЖЕ — ЗАГЛУШКА СЕРВЕРА. На проде весь этот блок уезжает на бэкенд.
+ * ========================================================================== */
+
+/* Веса выпадения — серверная тайна, фронту не отдаются */
+const DROP_WEIGHTS = { crown: 0.02, guiding: 0.12, constellation: 0.26, distant: 0.6 };
+
+const PITY_KEY = 'roulettePity';
+
+const WON_NAMES = [
+  'Аэлла', 'Сельмира', 'Вельот', 'Орамэль', 'Тэядия', 'Аринэя', 'Нолия',
+  'Стивия', 'Элирия', 'Каэра', 'Люна', 'Нэлла', 'Мивэль', 'Зонэя', 'Аридия',
+  'Юнамия', 'Сельста', 'Ильсия', 'Ноот', 'Вельрия', 'Милия', 'Аэвия',
+];
+
+const TIER_TILES = {
+  guiding: Array.from({ length: 10 }, (_, i) => `guiding-${i + 1}`),
+  constellation: Array.from({ length: 28 }, (_, i) => `star-${i + 1}`),
+  distant: Array.from({ length: 28 }, (_, i) => `star-${i + 1}`),
+};
+
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+const readPity = () => {
+  const n = Number(localStorage.getItem(PITY_KEY));
+  return Number.isFinite(n) && n > 0 ? n : 0;
+};
+
+const writePity = (n) => {
+  try {
+    localStorage.setItem(PITY_KEY, String(n));
+  } catch {
+    /* игнорируем */
+  }
+};
+
+/* Сборка предмета нужного тира */
+const makeItem = (tier, key, variant = null) => {
+  const base = {
+    cartId: `won-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    rarity: WHEEL_TIERS[tier].rarityId,
+    tier,
+    face: 'joy',
+    decor: 'sparkles',
+    wonAt: new Date().toLocaleDateString('ru-RU'),
+    key,
+  };
+
+  if (tier === 'crown') {
+    const v = variant || (Math.random() < 0.5 ? 'sun' : 'moon');
+    return {
+      ...base,
+      variant: v,
+      name: v === 'sun' ? 'Солнце' : 'Луна',
+      system: 'Солнечная система',
+      color: v === 'sun' ? 'gold' : 'silver',
+      image: v === 'sun' ? 'sun-1' : 'moon-1',
+    };
+  }
+
+  return {
+    ...base,
+    variant: null,
+    name: pick(WON_NAMES),
+    constellation: 'Рулетка звёзд',
+    color: tier === 'guiding' ? 'gold' : tier === 'constellation' ? 'blue' : 'cyan',
+    image: pick(TIER_TILES[tier]),
+  };
+};
+
+/* Розыгрыш тира по весам — только внутри «сервера» */
+const rollTier = () => {
+  const r = Math.random();
+  let acc = 0;
+  for (const tier of WHEEL_TIER_ORDER) {
+    acc += DROP_WEIGHTS[tier];
+    if (r < acc) return tier;
+  }
+  return 'distant';
+};
+
+const REEL_LEN = 60;
+const WIN_INDEX = 52;
+
+/* Сколько светил подмешать в ленту, чтобы игрок видел их на прокрутке */
+const TEASE_COUNT = 5;
+
+/**
+ * Лента для прокрутки. Чисто визуальная: важен только winIndex.
+ * Светила намеренно подмешиваются, чтобы пролетали перед глазами.
+ */
+const buildReel = (prize, nearMiss) => {
+  const reel = Array.from({ length: REEL_LEN }, (_, i) =>
+    makeItem(rollTier(), `i-${i}`)
+  );
+
+  /* показываем Солнце и Луну по ходу прокрутки */
+  const teasePositions = new Set();
+  while (teasePositions.size < TEASE_COUNT) {
+    const p = 4 + Math.floor(Math.random() * (WIN_INDEX - 8));
+    teasePositions.add(p);
+  }
+  let flip = 0;
+  for (const p of teasePositions) {
+    reel[p] = makeItem('crown', `i-${p}`, flip++ % 2 ? 'moon' : 'sun');
+  }
+
+  /* приз на своё место */
+  reel[WIN_INDEX] = { ...prize, key: `w-${WIN_INDEX}` };
+
+  /* «в миллиметрах»: светило вплотную к призу */
+  if (nearMiss === 'left') {
+    reel[WIN_INDEX - 1] = makeItem('crown', `i-${WIN_INDEX - 1}`);
+  } else if (nearMiss === 'right') {
+    reel[WIN_INDEX + 1] = makeItem('crown', `i-${WIN_INDEX + 1}`);
+  }
+
+  return reel;
+};
+
+/* Лента в состоянии покоя (до первой прокрутки) */
+export const fetchReel = async () =>
+  Array.from({ length: 24 }, (_, i) => makeItem(rollTier(), `s-${i}`));
+
+/**
+ * Прокрутка. Возвращает всё, что нужно фронту для отрисовки.
+ * TODO(backend): заменить тело на fetch('/api/roulette/spin', { method: 'POST' }).
+ */
+export const spin = async () => {
+  const spins = readPity() + 1;
+
+  /* гарант: сотая крутка всегда даёт Луну */
+  const guaranteed = spins >= PITY_TARGET;
+  const tier = guaranteed ? 'crown' : rollTier();
+  const prize = makeItem(tier, 'prize', guaranteed ? 'moon' : null);
+
+  /* счётчик сбрасывается на гаранте и на любом выпавшем светиле */
+  writePity(tier === 'crown' ? 0 : spins);
+
+  /* иногда останавливаемся впритык к светилу — для накала */
+  const nearMiss =
+    tier === 'crown' ? null : Math.random() < 0.35 ? (Math.random() < 0.5 ? 'left' : 'right') : null;
+
+  const reel = buildReel(prize, nearMiss);
+  recordWin(prize);
+
+  return {
+    reel,
+    winIndex: WIN_INDEX,
+    prize,
+    nearMiss,
+    guaranteed,
+    pity: { current: tier === 'crown' ? 0 : spins, target: PITY_TARGET },
+  };
+};
+
+/* Текущий прогресс гаранта (для отображения до первой крутки) */
+export const fetchPity = async () => ({ current: readPity(), target: PITY_TARGET });

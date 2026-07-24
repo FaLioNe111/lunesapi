@@ -14,7 +14,7 @@
 
 import { RARITIES } from './rarities';
 
-export const CELL_COUNT = 26;
+export const CELL_COUNT = 24;
 
 /* ===== Тиры колеса → редкости сайта =====
    cells — сколько ячеек занимает тир, weight — шанс выпадения,
@@ -54,7 +54,7 @@ export const WHEEL_TIERS = {
     id: 'distant',
     rarityId: 'distant',
     label: RARITIES.distant.label,       // Далёкая
-    cells: 12,
+    cells: 10,
     weight: 0.60,
     color: '#37aecb',
     color2: '#2183a6',
@@ -70,38 +70,32 @@ export const WHEEL_TIER_ORDER = ['crown', 'guiding', 'constellation', 'distant']
  * Солнце — сверху (0), Луна — снизу (25). Тиры распределены симметрично:
  * эпические у полюсов, редкие ближе к низу.
  */
-const buildLayout = () => {
-  const cells = new Array(CELL_COUNT);
+/**
+ * Раскладка соответствует отрисованному кольцу (src/assets/wheel/segments.webp):
+ * ячейка 0 — Солнце сверху, ячейка 12 — Луна снизу, между ними по бортам
+ * фиолетовые (Путеводные), синие (Созвёздные) и голубые (Далёкие) сегменты.
+ * Порядок снят с самой графики, менять только вместе с картинкой.
+ */
+const LAYOUT = [
+  'crown',                                            // 0  — Солнце
+  'guiding', 'guiding',                               // 1–2
+  'constellation', 'constellation', 'constellation', 'constellation', // 3–6
+  'distant', 'distant', 'distant', 'distant', 'distant',              // 7–11
+  'crown',                                            // 12 — Луна
+  'distant', 'distant', 'distant', 'distant', 'distant',              // 13–17
+  'constellation', 'constellation', 'constellation', 'constellation', // 18–21
+  'guiding', 'guiding',                               // 22–23
+];
 
-  /* два легендарных светила на вертикали (Солнце сверху, Луна снизу) */
-  cells[0] = { tier: 'crown', variant: 'sun', icon: 'sun-1' };
-  cells[13] = { tier: 'crown', variant: 'moon', icon: 'moon-1' };
-
-  /* правая половина: 1..12 (сверху вниз) */
-  for (let i = 1; i <= 12; i++) {
-    let tier;
-    if (i <= 2) tier = 'guiding';
-    else if (i <= 6) tier = 'constellation';
-    else tier = 'distant';
-    cells[i] = { tier, variant: null, icon: null };
-  }
-
-  /* левая половина: 14..25 (снизу вверх) — зеркально правой */
-  for (let i = 14; i <= 25; i++) {
-    let tier;
-    if (i <= 19) tier = 'distant';
-    else if (i <= 23) tier = 'constellation';
-    else tier = 'guiding';
-    cells[i] = { tier, variant: null, icon: null };
-  }
-
-  return cells.map((c, i) => ({
+const buildLayout = () =>
+  LAYOUT.map((tier, i) => ({
     index: i,
-    ...c,
-    rarityId: WHEEL_TIERS[c.tier].rarityId,
+    tier,
+    variant: i === 0 ? 'sun' : i === 12 ? 'moon' : null,
+    icon: i === 0 ? 'sun-1' : i === 12 ? 'moon-1' : null,
+    rarityId: WHEEL_TIERS[tier].rarityId,
     angle: (i * 360) / CELL_COUNT, // центр ячейки, градусы по часовой от верха
   }));
-};
 
 export const WHEEL_CELLS = buildLayout();
 

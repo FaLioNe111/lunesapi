@@ -544,6 +544,18 @@
   transform: translateY(-1px);
 }
 
+.ticket-pack-img {
+  width: 54px;
+  height: auto;
+  flex-shrink: 0;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.45));
+  transition: transform 0.2s ease;
+}
+
+.ticket-pack:hover .ticket-pack-img {
+  transform: rotate(-6deg) scale(1.08);
+}
+
 .ticket-pack-amount {
   color: #f3e6c4;
   font-size: 1.05rem;

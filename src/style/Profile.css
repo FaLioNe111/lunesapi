@@ -414,6 +414,202 @@
   color: #f3d488;
 }
 
+/* ===== Управление звёздами ===== */
+.stars-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.hidden-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.hidden-toggle input {
+  accent-color: #e0b264;
+  width: 16px;
+  height: 16px;
+}
+
+/* скрытая звезда — приглушена */
+.star-card {
+  position: relative; /* опора для бейджа «Скрыта» */
+}
+
+.star-card.is-hidden {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.hidden-badge {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  font-size: 0.72rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  color: #cdd6f4;
+  background: rgba(10, 18, 44, 0.85);
+  border: 1px solid rgba(168, 180, 224, 0.35);
+}
+
+.star-manage {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+}
+
+.manage-button {
+  flex: 1;
+  min-width: 84px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(168, 180, 224, 0.25);
+  color: #cdd6f4;
+  padding: 0.5rem 0.6rem;
+  border-radius: 10px;
+  font-family: 'Neucha', cursive;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.manage-button:hover {
+  border-color: rgba(243, 212, 136, 0.5);
+  color: #f3d488;
+}
+
+.manage-button.danger:hover {
+  border-color: rgba(240, 138, 138, 0.6);
+  color: #f08a8a;
+  background: rgba(240, 138, 138, 0.08);
+}
+
+.manage-button.wide {
+  flex: none;
+  padding: 0.6rem 1.4rem;
+}
+
+/* окно настройки звезды */
+.star-edit {
+  text-align: left;
+}
+
+.star-edit .qr-title {
+  text-align: center;
+}
+
+.star-edit .settings-field input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.edit-note {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  margin: -0.6rem 0 1rem;
+}
+
+.star-edit .settings-field textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(168, 180, 224, 0.3);
+  border-radius: 10px;
+  color: #fff;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  font-family: 'Neucha', cursive;
+  outline: none;
+  resize: vertical;
+}
+
+.star-edit .settings-field textarea:focus {
+  border-color: rgba(243, 212, 136, 0.55);
+}
+
+/* ===== QR-код подарка ===== */
+.qr-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(4, 8, 25, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.qr-modal {
+  width: 100%;
+  max-width: 400px;
+  background: linear-gradient(180deg, rgba(24, 34, 74, 0.98), rgba(12, 20, 48, 0.98));
+  border: 1px solid rgba(243, 212, 136, 0.35);
+  border-radius: 22px;
+  padding: 1.8rem 1.6rem;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(3, 6, 18, 0.7);
+  animation: fadeInUp 0.35s ease-out;
+}
+
+.qr-title {
+  color: #f3d488;
+  font-size: 1.5rem;
+  margin: 0 0 0.4rem;
+}
+
+.qr-hint {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 1.2rem;
+}
+
+/* белое поле обязательно — иначе код не читается сканером */
+.qr-frame {
+  display: inline-block;
+  background: #fff;
+  padding: 12px;
+  border-radius: 14px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45);
+}
+
+.qr-img {
+  display: block;
+  width: 240px;
+  height: 240px;
+  image-rendering: pixelated;
+}
+
+.qr-warning {
+  color: #f0b48a;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  margin: 1.1rem 0 1.3rem;
+}
+
+.qr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+}
+
+.qr-actions .browse-stars-button {
+  text-decoration: none;
+}
+
 /* ===== Токены ===== */
 .tokens-balance {
   background: rgba(255, 255, 255, 0.05);
@@ -464,6 +660,14 @@
 .token-pack:hover {
   border-color: rgba(243, 212, 136, 0.5);
   transform: translateY(-2px);
+}
+
+.token-pack-img {
+  width: 76px;
+  height: auto;
+  align-self: center;
+  margin-bottom: 0.4rem;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
 }
 
 .token-pack-amount {

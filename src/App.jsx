@@ -24,7 +24,7 @@ function App() {
           <Route path="/start" element={<StartPage />} />
           <Route path="/stars" element={<StarsPage />} />
           <Route path="/star/:cartId" element={<StarPage />} />
-          {/* страница получения подарка — её открывает получатель по ссылке */}
+          {/* страница получения подарка: /gift/<длинный токен> */}
           <Route path="/gift/:cartId" element={<GiftPage />} />
           <Route path="/wheel" element={<WheelPage />} />
           <Route path="/cart" element={<CartPage />} />

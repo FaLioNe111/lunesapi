@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import StarAvatar from '../components/StarAvatar';
 import { WHEEL_TIERS, PITY_TARGET, spin, fetchReel, fetchPity } from '../data/wheel';
+import ticketImg from '../assets/ticket.webp';
 import {
   TOKEN_PACKS,
   getBalance,
@@ -122,6 +123,7 @@ const WheelPage = () => {
     <div className={`ticket-packs ${extraClass}`}>
       {TOKEN_PACKS.slice(0, 3).map((pack) => (
         <button key={pack.id} className="ticket-pack" onClick={() => handleBuy(pack)}>
+          <img src={ticketImg} alt="" className="ticket-pack-img" draggable={false} />
           <span className="ticket-pack-amount">
             {pack.amount} {ticketWord(pack.amount)}
           </span>
